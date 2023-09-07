@@ -76,7 +76,7 @@ DebFurFrou <- pokemon_rates %>% filter(PokemonName == "Debutante Furfrou")
 #      return(gen)
 # }
 
-regionfactor <- factor(levels = c("Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar", "Hisui", "Paldea"))
+regionfactor <- factor(levels = c("1", "2", "3", "4", "5", "6", "7", "8", "8", "9"), labels = c("Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar", "Hisui", "Paldea"), ordered = TRUE)
 genfactor <- factor(levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9"))
 
 pokemon_averages_w_gens <- pokemon_averages %>% mutate(Generation = case_when(DexNum <= 1010 & DexNum > 905 | str_detect(PokeApiName, "-paldea")~ "9",
@@ -280,14 +280,16 @@ overall_modes_generation <- pokemon_rates_w_gens %>% group_by(Generation) %>% su
                         Popularity), names_to = "Category", values_to = "ModeRank")
 
 ##### GRAPHS #####
-
+mode_region_long <- mode_region_long %>%
+  mutate(Factor = factor(Region, levels = c("Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar", "Hisui", "Paldea"), ordered = TRUE)) %>%
+  mutate(Order = case_when(Factor == "Kanto" ~ 1, Factor == "Johto" ~ 2, Factor == "Hoenn" ~ 3, Factor == "Sinnoh" ~ 4, Factor == "Unova" ~ 5, Factor == "Kalos" ~ 6, Factor == "Alola" ~ 7, Factor == "Galar" ~ 8, Factor == "Hisui" ~ 9, Factor == "Paldea" ~ 10)) 
 mode_gen_plot <- ggplot(mode_gen_long)
 mode_region_plot <- ggplot(mode_region_long)
 
 mode_gen_plot +
-  geom_
+  geom_line(aes(x = Generation, y = ModeRank, group = Category))
 mode_region_plot +
-
+  geom_smooth(aes(x = reorder(Region, Order), y = ModeRank, group = Category, color = Category), se = F)
 
 ggplot(averages_long_region, aes(x = Category, y = AverageRank)) +
   geom_col() +
