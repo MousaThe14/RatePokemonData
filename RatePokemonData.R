@@ -11,6 +11,11 @@ library(sf)
 library(shiny)
 library(viridisLite)
 library(ggpmisc)
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
 
 pokemon_rates <- read.csv("all-ratings.csv")
 columnnames <- c("DexNum",
@@ -31,7 +36,10 @@ raw_rates_list <- unique(pokemon_rates$PokemonName)
 
 names(pokemon_rates) <- columnnames
 
-pokemon_rates <- pokemon_rates %>% group_by(PokemonName)
+pokemon_rates <- pokemon_rates %>% 
+  mutate_at("UserID", as.character)%>%
+  subset(select = -Timestamp)%>%
+  group_by(PokemonName) 
 
 pokemon_averages <- read.csv("average-ratings.csv")
 
@@ -68,6 +76,8 @@ DebFurFrou <- pokemon_rates %>% filter(PokemonName == "Debutante Furfrou")
 #      return(gen)
 # }
 
+regionfactor <- factor(levels = c("Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar", "Hisui", "Paldea"))
+genfactor <- factor(levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9"))
 
 pokemon_averages_w_gens <- pokemon_averages %>% mutate(Generation = case_when(DexNum <= 1010 & DexNum > 905 | str_detect(PokeApiName, "-paldea")~ "9",
                                                                              DexNum <= 905 & DexNum > 809 | str_detect(PokeApiName, "-galar") | str_detect(PokeApiName, "-gmax") | str_detect(PokeApiName, "-hisui") | str_detect(PokeApiName, "-white-striped") ~ "8",
@@ -89,11 +99,10 @@ pokemon_averages_w_gens <- pokemon_averages %>% mutate(Generation = case_when(De
                                                                        DexNum <= 251 & DexNum > 151 ~ "Johto",
                                                                        DexNum <= 151 ~ "Kanto"))
 
-regionfactor <- factor(levels = c("Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar", "Hisui", "Paldea"))
-genfactor <- factor(levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9"))
 
-pokemon_averages_w_gens$Region <- regionfactor
-genfactor <- 
+
+levels(pokemon_averages_w_gens$Region) <- regionfactor
+levels(pokemon_averages_w_gens$Generation) <- genfactor
   
   
 write.csv(pokemon_averages_w_gens, "average-ratings_w_gens.csv")
@@ -102,7 +111,7 @@ write.csv(pokemon_averages_w_gens, "average-ratings_w_gens.csv")
 pokemon_rates_w_gens <- pokemon_rates %>% mutate(Generation = case_when(DexNum <= 1010 & DexNum > 905 | str_detect(PokemonName, "Palean ")~ "9",
                                                                             DexNum <= 905 & DexNum > 809 | str_detect(PokemonName, "Galarian ") | str_detect(PokemonName, "Gigantamax ") | str_detect(PokemonName, "-hisui") | str_detect(PokemonName, "-white-striped") ~ "8",
                                                                             DexNum <= 809 & DexNum > 721 | str_detect(PokemonName, "Alolan ") ~ "7",
-                                                                            DexNum <= 721 & DexNum > 649 | str_detect(PokemonName, "Mega ") | str_detect(PokemonName, "Primal ")~ "6",
+                                                                            DexNum <= 721 & DexNum > 649 | str_detect(PokemonName, "Mega ") | str_detect(PokemonName, "Primal ") ~ "6",
                                                                             DexNum <= 649 & DexNum > 493 ~ "5",
                                                                             DexNum <= 493 & DexNum > 386 ~ "4",
                                                                             DexNum <= 386 & DexNum > 251 ~ "3",
@@ -118,12 +127,18 @@ pokemon_rates_w_gens <- pokemon_rates %>% mutate(Generation = case_when(DexNum <
                                                                         DexNum <= 386 & DexNum > 251 ~ "Hoenn",
                                                                         DexNum <= 251 & DexNum > 151 ~ "Johto",
                                                                         DexNum <= 151 ~ "Kanto"))
+
+levels(pokemon_rates_w_gens$Region) <- regionfactor
+levels(pokemon_rates_w_gens$Generation) <- genfactor
+
+
 write.csv(pokemon_rates_w_gens, "all-ratings_w_gens.csv") 
+
 
 AverageCorrelation <- cor(pokemon_averages_w_gens %>% mutate_at("Generation", as.numeric) %>% subset(select = -c(DexNum, PokemonName, PokeApiName, RatingCount, Region))) 
 corrplot(AverageCorrelation)
 
-FullCorrelation <- cor(pokemon_rates_w_gens %>% na.omit() %>% mutate_at("Generation", as.numeric) %>% subset(select = -c(DexNum, Timestamp, PokemonName, UserID, Region))) 
+FullCorrelation <- cor(pokemon_rates_w_gens %>% na.omit() %>% mutate_at("Generation", as.numeric) %>% subset(select = -c(DexNum, PokemonName, UserID, Region))) 
 corrplot(FullCorrelation)
 
 
@@ -174,7 +189,104 @@ averages_long_region <- averages_long %>%
 
 
 
+
+pokemonmodes <- pokemon_rates_w_gens %>% group_by(PokemonName, Region, Generation) %>% reframe(Complexity = getmode(Complexity),
+                                                                             Realism = getmode(Realism),
+                                                                             Artificiality = getmode(Artificiality),
+                                                                             Fantasy = getmode(Fantasy),
+                                                                             Humanoid = getmode(Humanoid),
+                                                                             Cuteness = getmode(Cuteness),
+                                                                             Coolness = getmode(Coolness),
+                                                                             Beauty  = getmode(Beauty),
+                                                                             Popularity = getmode(Popularity))
+
+mode_by_region <- pokemonmodes %>% group_by(Region) %>% summarise(Complexity = getmode(Complexity),
+                                                              Realism = getmode(Realism),
+                                                              Artificiality = getmode(Artificiality),
+                                                              Fantasy = getmode(Fantasy),
+                                                              Humanoid = getmode(Humanoid),
+                                                              Cuteness = getmode(Cuteness),
+                                                              Coolness = getmode(Coolness),
+                                                              Beauty  = getmode(Beauty),
+                                                              Popularity = getmode(Popularity))
+mode_by_gen <- pokemonmodes %>% group_by(Generation) %>% summarise(Complexity = getmode(Complexity),
+                                                               Realism = getmode(Realism),
+                                                               Artificiality = getmode(Artificiality),
+                                                               Fantasy = getmode(Fantasy),
+                                                               Humanoid = getmode(Humanoid),
+                                                               Cuteness = getmode(Cuteness),
+                                                               Coolness = getmode(Coolness),
+                                                               Beauty  = getmode(Beauty),
+                                                               Popularity = getmode(Popularity))
+
+mode_gen_long <-  mode_by_gen %>% pivot_longer(cols = c(Complexity,
+                                                                    Realism,
+                                                                    Artificiality,
+                                                                    Fantasy,
+                                                                    Humanoid,
+                                                                    Cuteness,
+                                                                    Coolness,
+                                                                    Beauty,
+                                                                    Popularity), names_to = "Category", values_to = "ModeRank") 
+
+mode_region_long <-  mode_by_region %>% pivot_longer(cols = c(Complexity,
+                                                                       Realism,
+                                                                       Artificiality,
+                                                                       Fantasy,
+                                                                       Humanoid,
+                                                                       Cuteness,
+                                                                       Coolness,
+                                                                       Beauty,
+                                                                       Popularity), names_to = "Category", values_to = "ModeRank") 
+  
+  
+
+overall_modes_region <- pokemon_rates_w_gens %>% group_by(Region) %>% summarise(Complexity = getmode(Complexity),
+                                                                                              Realism = getmode(Realism),
+                                                                                              Artificiality = getmode(Artificiality),
+                                                                                              Fantasy = getmode(Fantasy),
+                                                                                              Humanoid = getmode(Humanoid),
+                                                                                              Cuteness = getmode(Cuteness),
+                                                                                              Coolness = getmode(Coolness),
+                                                                                              Beauty  = getmode(Beauty),
+                                                                                              Popularity = getmode(Popularity)) %>%
+pivot_longer(cols = c(Complexity,
+                            Realism,
+                            Artificiality,
+                            Fantasy,
+                            Humanoid,
+                            Cuteness,
+                            Coolness,
+                            Beauty,
+                            Popularity), names_to = "Category", values_to = "ModeRank")
+
+overall_modes_generation <- pokemon_rates_w_gens %>% group_by(Generation) %>% summarise(Complexity = getmode(Complexity),
+                                                                         Realism = getmode(Realism),
+                                                                         Artificiality = getmode(Artificiality),
+                                                                         Fantasy = getmode(Fantasy),
+                                                                         Humanoid = getmode(Humanoid),
+                                                                         Cuteness = getmode(Cuteness),
+                                                                         Coolness = getmode(Coolness),
+                                                                         Beauty  = getmode(Beauty),
+                                                                         Popularity = getmode(Popularity)) %>%
+  pivot_longer(cols = c(Complexity,
+                        Realism,
+                        Artificiality,
+                        Fantasy,
+                        Humanoid,
+                        Cuteness,
+                        Coolness,
+                        Beauty,
+                        Popularity), names_to = "Category", values_to = "ModeRank")
+
 ##### GRAPHS #####
+
+mode_gen_plot <- ggplot(mode_gen_long)
+mode_region_plot <- ggplot(mode_region_long)
+
+mode_gen_plot +
+  geom_
+mode_region_plot +
 
 
 ggplot(averages_long_region, aes(x = Category, y = AverageRank)) +
