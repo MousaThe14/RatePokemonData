@@ -76,6 +76,8 @@ DebFurFrou <- pokemon_rates %>% filter(PokemonName == "Debutante Furfrou")
 #      return(gen)
 # }
 
+
+  
 regionfactor <- factor(levels = c("1", "2", "3", "4", "5", "6", "7", "8", "8", "9"), labels = c("Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar", "Hisui", "Paldea"), ordered = TRUE)
 genfactor <- factor(levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9"))
 
@@ -97,13 +99,21 @@ pokemon_averages_w_gens <- pokemon_averages %>% mutate(Generation = case_when(De
                                                                        DexNum <= 493 & DexNum > 386 ~ "Sinnoh",
                                                                        DexNum <= 386 & DexNum > 251 ~ "Hoenn",
                                                                        DexNum <= 251 & DexNum > 151 ~ "Johto",
-                                                                       DexNum <= 151 ~ "Kanto"))
+                                                                       DexNum <= 151 ~ "Kanto")) %>%
+  mutate(Region = factor(Region, levels = c("Kanto",
+                                            "Johto",
+                                            "Hoenn",
+                                            "Sinnoh",
+                                            "Unova",
+                                            "Kalos",
+                                            "Alola",
+                                            "Galar",
+                                            "Hisui",
+                                            "Paldea"), ordered = TRUE)) %>%
+  mutate(Order = case_when(Region == "Kanto" ~ 1, Region == "Johto" ~ 2, Region == "Hoenn" ~ 3, Region == "Sinnoh" ~ 4, Region == "Unova" ~ 5, Region == "Kalos" ~ 6, Region == "Alola" ~ 7, Region == "Galar" ~ 8, Region == "Hisui" ~ 9, Region == "Paldea" ~ 10))
 
-
-
-levels(pokemon_averages_w_gens$Region) <- regionfactor
-levels(pokemon_averages_w_gens$Generation) <- genfactor
   
+
   
 write.csv(pokemon_averages_w_gens, "average-ratings_w_gens.csv")
 
@@ -126,10 +136,18 @@ pokemon_rates_w_gens <- pokemon_rates %>% mutate(Generation = case_when(DexNum <
                                                                         DexNum <= 493 & DexNum > 386 ~ "Sinnoh",
                                                                         DexNum <= 386 & DexNum > 251 ~ "Hoenn",
                                                                         DexNum <= 251 & DexNum > 151 ~ "Johto",
-                                                                        DexNum <= 151 ~ "Kanto"))
-
-levels(pokemon_rates_w_gens$Region) <- regionfactor
-levels(pokemon_rates_w_gens$Generation) <- genfactor
+                                                                        DexNum <= 151 ~ "Kanto")) %>%
+  mutate(Region = factor(Region, levels = c("Kanto",
+                                            "Johto",
+                                            "Hoenn",
+                                            "Sinnoh",
+                                            "Unova",
+                                            "Kalos",
+                                            "Alola",
+                                            "Galar",
+                                            "Hisui",
+                                            "Paldea"), ordered = TRUE)) %>%
+  mutate(Order = case_when(Region == "Kanto" ~ 1, Region == "Johto" ~ 2, Region == "Hoenn" ~ 3, Region == "Sinnoh" ~ 4, Region == "Unova" ~ 5, Region == "Kalos" ~ 6, Region == "Alola" ~ 7, Region == "Galar" ~ 8, Region == "Hisui" ~ 9, Region == "Paldea" ~ 10))
 
 
 write.csv(pokemon_rates_w_gens, "all-ratings_w_gens.csv") 
@@ -165,7 +183,20 @@ average_by_region <- pokemon_averages_w_gens %>%
             Cuteness = mean(Cuteness),
             Coolness = mean(Coolness),
             Beauty  = mean(Beauty),
-            Popularity = mean(Popularity))
+            Popularity = mean(Popularity)) %>%
+  mutate(Region = factor(Region, levels = c("Kanto",
+                                            "Johto",
+                                            "Hoenn",
+                                            "Sinnoh",
+                                            "Unova",
+                                            "Kalos",
+                                            "Alola",
+                                            "Galar",
+                                            "Hisui",
+                                            "Paldea"), ordered = TRUE)) %>%
+  mutate(Order = case_when(Region == "Kanto" ~ 1, Region == "Johto" ~ 2, Region == "Hoenn" ~ 3, Region == "Sinnoh" ~ 4, Region == "Unova" ~ 5, Region == "Kalos" ~ 6, Region == "Alola" ~ 7, Region == "Galar" ~ 8, Region == "Hisui" ~ 9, Region == "Paldea" ~ 10))
+
+
 
 
 
@@ -185,7 +216,20 @@ averages_long_gen <- averages_long %>%
 
 averages_long_region <- averages_long %>%
   group_by(Region,Category)%>%
-  summarize(AverageRank = mean(AverageRank))
+  summarize(AverageRank = mean(AverageRank))  %>%
+  mutate(Region = factor(Region, levels = c("Kanto",
+                                                                                        "Johto",
+                                                                                        "Hoenn",
+                                                                                        "Sinnoh",
+                                                                                        "Unova",
+                                                                                        "Kalos",
+                                                                                        "Alola",
+                                                                                        "Galar",
+                                                                                        "Hisui",
+                                                                                        "Paldea"), ordered = TRUE)) %>%
+  mutate(Order = case_when(Region == "Kanto" ~ 1, Region == "Johto" ~ 2, Region == "Hoenn" ~ 3, Region == "Sinnoh" ~ 4, Region == "Unova" ~ 5, Region == "Kalos" ~ 6, Region == "Alola" ~ 7, Region == "Galar" ~ 8, Region == "Hisui" ~ 9, Region == "Paldea" ~ 10))
+
+
 
 
 
@@ -286,19 +330,51 @@ mode_region_long <- mode_region_long %>%
 mode_gen_plot <- ggplot(mode_gen_long)
 mode_region_plot <- ggplot(mode_region_long)
 
-mode_gen_plot +
-  geom_line(aes(x = Generation, y = ModeRank, group = Category))
-mode_region_plot +
-  geom_smooth(aes(x = reorder(Region, Order), y = ModeRank, group = Category, color = Category), se = F)
+ggmode_gen<-mode_gen_plot +
+  geom_line(aes(x = Generation, y = ModeRank, group = Category, color = Category)) +
+  geom_point(aes(x = Generation, y = ModeRank, group = Category, color = Category)) +
+  labs(title = "Mode of Pokemon Ratings by Generation", x = "Pokemon Generation", y = "Mode Rating") +
+  facet_wrap(~Category)
+ggmode_region<- mode_region_plot +
+  geom_line(aes(x = reorder(Region, Order), y = ModeRank, group = Category, color = Category)) +
+  geom_point(aes(x = Region, y = ModeRank, group = Category, color = Category)) +
+  labs(title = "Mode of Pokemon Ratings by Region", x = "Region in Generation Order", y = "Mode Rating") +
+  facet_wrap(~Category) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1.2, vjust = 1.5))
+
+ggarrange(ggmode_gen, ggmode_region, common.legend = TRUE)
 
 ggplot(averages_long_region, aes(x = Category, y = AverageRank)) +
   geom_col() +
   facet_wrap(~ Region)
 
 
-ggplot(pokemon_rates_w_gens, aes(x = Complexity)) +
-  geom_histogram() +
-  facet_wrap(~ Generation)
+
+
+
+gen_rate_long <- pokemon_rates_w_gens %>% 
+  pivot_longer(cols = c(Complexity,
+                        Realism,
+                        Artificiality,
+                        Fantasy,
+                        Humanoid,
+                        Cuteness,
+                        Coolness,
+                        Beauty,
+                        Popularity), names_to = "Category", values_to = "Rank") %>%
+  na.omit() %>%
+  mutate_at("Rank", as.factor)
+
+ggplot(gen_rate_long, aes(x = Rank)) +
+  geom_histogram(stat= "count") +
+  facet_wrap(~ Category)
+
+ggplot(gen_rate_long, aes(x = Rank, alpha = 0.5, group = Category, fill = Category)) +
+  geom_density(stat= "count") +
+  facet_grid(Category ~ Region)
+ggplot(gen_rate_long, aes(x = Rank, alpha = 0.5, group = Category, fill = Category)) +
+  geom_density(stat= "count") +
+  facet_grid(Region ~ Category)
 
 
 gggen <- ggplot(average_by_gen)
