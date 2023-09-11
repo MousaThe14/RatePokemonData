@@ -111,9 +111,18 @@ pokemon_averages_w_gens <- pokemon_averages %>% mutate(Generation = case_when(De
                                             "Galar",
                                             "Hisui",
                                             "Paldea"), ordered = TRUE)) %>%
-  mutate(Order = case_when(Region == "Kanto" ~ 1, Region == "Johto" ~ 2, Region == "Hoenn" ~ 3, Region == "Sinnoh" ~ 4, Region == "Unova" ~ 5, Region == "Kalos" ~ 6, Region == "Alola" ~ 7, Region == "Galar" ~ 8, Region == "Hisui" ~ 9, Region == "Paldea" ~ 10))
+  mutate(Order = case_when(Region == "Kanto" ~ 1,
+                           Region == "Johto" ~ 2,
+                           Region == "Hoenn" ~ 3,
+                           Region == "Sinnoh" ~ 4,
+                           Region == "Unova" ~ 5,
+                           Region == "Kalos" ~ 6,
+                           Region == "Alola" ~ 7,
+                           Region == "Galar" ~ 8,
+                           Region == "Hisui" ~ 9,
+                           Region == "Paldea" ~ 10))
 
-  
+
 
   
 write.csv(pokemon_averages_w_gens, "average-ratings_w_gens.csv")
