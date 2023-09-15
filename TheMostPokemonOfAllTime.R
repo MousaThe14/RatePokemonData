@@ -84,15 +84,26 @@ centerratings <- centerratings %>%
   mutate_at(c("Complexity","Realism","Artificiality","Fantasy","Humanoid","Cuteness","Coolness", "Beauty"), squared) %>%
   mutate_at(c("Complexity","Realism","Artificiality","Fantasy","Humanoid","Cuteness","Coolness", "Beauty"), rooted)
 
-MostAverage <- centerratings %>% filter(Complexity < pokemonSD$Complexity | Realism < pokemonSD$Realism|  Artificiality < pokemonSD$Artificiality | Fantasy < pokemonSD$Fantasy | Humanoid < pokemonSD$Humanoid | Cuteness < pokemonSD$Cuteness | Coolness < pokemonSD$Coolness | Beauty < pokemonSD$Beauty)
+
+
+MostAverage <- centerratings %>% filter(Complexity < pokemonSD$Complexity | Realism < pokemonSD$Realism |  Artificiality < pokemonSD$Artificiality | Fantasy < pokemonSD$Fantasy | Humanoid < pokemonSD$Humanoid | Cuteness < pokemonSD$Cuteness | Coolness < pokemonSD$Coolness | Beauty < pokemonSD$Beauty)
 
 MostAverage2 <- centerratings %>% filter(Complexity < pokemonSD$Complexity & Realism < pokemonSD$Realism &  Artificiality < pokemonSD$Artificiality & Fantasy < pokemonSD$Fantasy & Humanoid < pokemonSD$Humanoid & Cuteness < pokemonSD$Cuteness & Coolness < pokemonSD$Coolness & Beauty < pokemonSD$Beauty)
 
-TheMostPokemonOfAllTime2 <- inner_join(MostAverage2, MostPopular, by = "PokemonName")
+ThePopularMostPokemonOfAllTime <- inner_join(MostAverage2, MostPopular, by = "PokemonName")
 
 
 MostAverageOfAllTime <- left_join(MostAverage2, pokemonratings, by = "PokemonName") %>% na.omit()
 
+MostAverage2 <- MostAverage2 %>% mutate(DesignSDMean = rowMeans(select(MostAverage2, c(Complexity,
+                                                                                       Realism,
+                                                                                       Artificiality,
+                                                                                       Fantasy,
+                                                                                       Humanoid,
+                                                                                       Cuteness,
+                                                                                       Coolness,
+                                                                                       Beauty))))
+  slice_min(MostAverage2, n = 20, order_by = DesignSDMean)
 
 # scaleratings <- pokemonratings%>% normalize(method = "scale")
 

@@ -61,6 +61,29 @@ names(pokemon_averages) <- c("DexNum",
 theNA <- pokemon_rates %>% filter(is.na(Coolness)) #This single Furfrou ranking just has, like, no data, which is weird. Let's see if it has other votes
 DebFurFrou <- pokemon_rates %>% filter(PokemonName == "Debutante Furfrou")
 
+standardDeviations <- pokemon_rates %>% 
+  group_by(PokemonName) %>%
+  summarise(Complexity = sd.p(Complexity),
+            Realism = sd.p(Realism),
+            Artificiality = sd.p(Artificiality),
+            Fantasy = sd.p(Fantasy),
+            Humanoid = sd.p(Humanoid),
+            Cuteness = sd.p(Cuteness),
+            Coolness =  sd.p(Coolness),
+            Beauty = sd.p(Beauty),
+            PopularitySD = sd.p(Popularity),
+            MeanDesignSD = mean(c_across(c(Complexity,
+                                           Realism,
+                                           Artificiality,
+                                           Fantasy,
+                                           Humanoid,
+                                           Cuteness,
+                                           Coolness,
+                                           Beauty))))
+
+sdOnly <- standardDeviations %>% subset(select = c(PokemonName, PopularitySD, MeanDesignSD))
+
+
 
 # generation_fun <- function(dexnum){
 #   
@@ -123,7 +146,7 @@ pokemon_averages_w_gens <- pokemon_averages %>% mutate(Generation = case_when(De
                            Region == "Paldea" ~ 10))
 
 
-
+pokemon_averages_w_gens <- pokemon_averages_w_gens %>% full_join(sdOnly, by = "PokemonName")
   
 write.csv(pokemon_averages_w_gens, "average-ratings_w_gens.csv")
 
