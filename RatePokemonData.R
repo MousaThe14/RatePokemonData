@@ -16,9 +16,13 @@ getmode <- function(v) {
   uniqv <- unique(v)
   uniqv[which.max(tabulate(match(v, uniqv)))]
 }
+sd.p= function(x){
+  sd(x) * sqrt((length(x)-1)/length(x))
+} 
 
+pokemon_rates <- read.csv("all-ratings.csv")  %>%
+  na.omit()
 
-pokemon_rates <- read.csv("all-ratings.csv")
 columnnames <- c("DexNum",
                  "PokemonName",
                  "UserID",
@@ -58,8 +62,8 @@ names(pokemon_averages) <- c("DexNum",
                             "Popularity",
                             "RatingCount")
 
-theNA <- pokemon_rates %>% filter(is.na(Coolness)) #This single Furfrou ranking just has, like, no data, which is weird. Let's see if it has other votes
-DebFurFrou <- pokemon_rates %>% filter(PokemonName == "Debutante Furfrou")
+# theNA <- pokemon_rates %>% filter(is.na(Coolness)) #This single Furfrou ranking just has, like, no data, which is weird. Let's see if it has other votes
+# DebFurFrou <- pokemon_rates %>% filter(PokemonName == "Debutante Furfrou")
 
 standardDeviations <- pokemon_rates %>% 
   group_by(PokemonName) %>%
