@@ -20,6 +20,16 @@ sd.p= function(x){
   sd(x) * sqrt((length(x)-1)/length(x))
 } 
 
+types <- read.csv(url("https://raw.githubusercontent.com/PokeAPI/pokeapi/master/data/v2/csv/pokemon_types.csv"))
+pkmn_id <- read.csv(url("https://raw.githubusercontent.com/PokeAPI/pokeapi/master/data/v2/csv/pokemon.csv"))
+
+pkmn_types <- pkmn_id %>% inner_join(types, by = c("id" = "pokemon_id"))
+
+pkmn_split <- types %>% pivot_wider(names_from = slot, values_from = type_id)
+
+names(pkmn_split) <- c("pokemon_id", "Type1", "Type2") 
+  
+  
 pokemon_rates <- read.csv("all-ratings.csv")  %>%
   na.omit()
 
@@ -64,6 +74,8 @@ names(pokemon_averages) <- c("DexNum",
 
 # theNA <- pokemon_rates %>% filter(is.na(Coolness)) #This single Furfrou ranking just has, like, no data, which is weird. Let's see if it has other votes
 # DebFurFrou <- pokemon_rates %>% filter(PokemonName == "Debutante Furfrou")
+gourgeist <- pokemon_averages %>% filter(str_detect(PokeApiName, "gourgeist"))
+
 
 standardDeviations <- pokemon_rates %>% 
   group_by(PokemonName) %>%
@@ -105,7 +117,7 @@ sdOnly <- standardDeviations %>% subset(select = c(PokemonName, PopularitySD, Me
 # }
 
 
-  
+
 regionfactor <- factor(levels = c("1", "2", "3", "4", "5", "6", "7", "8", "8", "9"), labels = c("Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar", "Hisui", "Paldea"), ordered = TRUE)
 genfactor <- factor(levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9"))
 
