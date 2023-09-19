@@ -16,18 +16,40 @@ getmode <- function(v) {
   uniqv <- unique(v)
   uniqv[which.max(tabulate(match(v, uniqv)))]
 }
+
+# R's base sd() function performs a sample mean
+# This function performs a population mean
 sd.p= function(x){
   sd(x) * sqrt((length(x)-1)/length(x))
 } 
 
+#List of Pokemon with their types but types are by type id
 types <- read.csv(url("https://raw.githubusercontent.com/PokeAPI/pokeapi/master/data/v2/csv/pokemon_types.csv"))
-pkmn_id <- read.csv(url("https://raw.githubusercontent.com/PokeAPI/pokeapi/master/data/v2/csv/pokemon.csv"))
 
-pkmn_types <- pkmn_id %>% inner_join(types, by = c("id" = "pokemon_id"))
+#Types with their id and corresponding name
+typenames <- read.csv(url("https://raw.githubusercontent.com/PokeAPI/pokeapi/master/data/v2/csv/types.csv")) %>%
+  subset(select = -c(generation_id, damage_class_id))
 
-pkmn_split <- types %>% pivot_wider(names_from = slot, values_from = type_id)
+# Pokemon with their id and identifier. id will help attach their types while identifier is used for merging with ratepkmn
+pkmn_id <- read.csv(url("https://raw.githubusercontent.com/PokeAPI/pokeapi/master/data/v2/csv/pokemon.csv")) %>% 
+  subset(select = -c(is_default, order))
 
-names(pkmn_split) <- c("pokemon_id", "Type1", "Type2") 
+# Merging pokemon and types with the name of their types
+named_types <- types %>% full_join(typenames, by = c("type_id" = "id"))
+
+# renaming "identifier" to "type"
+names(named_types) <- c("pokemon_id", "type_id", "slot", "type")
+
+# Merging types with their name with Pokemon by Pokemon
+pkmn_types <- pkmn_id %>% inner_join(named_types, by = c("id" = "pokemon_id"))
+
+# Separates the types into distinct columns and thus merges duplicates
+pkmn_split <- pkmn_types %>% pivot_wider(names_from = slot, values_from = c(type, type_id))
+
+#renaming for later use
+names(pkmn_split) <- c("id", "PokeApiName", "species_id", "Height", "Weight", "base_experience", "Type1", "Type2", "TypeID1", "TypeID2") 
+
+pkmn_metadata <- pkmn_split %>% subset(select = -c(base_experience, species_id, TypeID1, TypeID2))
   
   
 pokemon_rates <- read.csv("all-ratings.csv")  %>%
@@ -74,8 +96,7 @@ names(pokemon_averages) <- c("DexNum",
 
 # theNA <- pokemon_rates %>% filter(is.na(Coolness)) #This single Furfrou ranking just has, like, no data, which is weird. Let's see if it has other votes
 # DebFurFrou <- pokemon_rates %>% filter(PokemonName == "Debutante Furfrou")
-gourgeist <- pokemon_averages %>% filter(str_detect(PokeApiName, "gourgeist"))
-
+# gourgeist <- pokemon_averages %>% filter(str_detect(PokeApiName, "gourgeist"))
 
 standardDeviations <- pokemon_rates %>% 
   group_by(PokemonName) %>%
@@ -163,8 +184,10 @@ pokemon_averages_w_gens <- pokemon_averages %>% mutate(Generation = case_when(De
 
 
 pokemon_averages_w_gens <- pokemon_averages_w_gens %>% full_join(sdOnly, by = "PokemonName")
-  
-write.csv(pokemon_averages_w_gens, "average-ratings_w_gens.csv")
+
+pokemon_averages_w_gens_types <- pokemon_averages_w_gens %>% left_join(pkmn_metadata, by = "PokeApiName")
+
+write.csv(pokemon_averages_w_gens_types, "average-ratings_w_gens.csv")
 
 
 pokemon_rates_w_gens <- pokemon_rates %>% mutate(Generation = case_when(DexNum <= 1010 & DexNum > 905 | str_detect(PokemonName, "Palean ")~ "9",
