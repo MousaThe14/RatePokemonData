@@ -46,6 +46,8 @@ pkmn_types <- pkmn_id %>% inner_join(named_types, by = c("id" = "pokemon_id"))
 # Separates the types into distinct columns and thus merges duplicates
 pkmn_split <- pkmn_types %>% pivot_wider(names_from = slot, values_from = c(type, type_id))
 
+pkmn_split$Type2 <-pkmn_split$Type2 %>% replace_na('No 2nd Type')
+
 #renaming for later use
 names(pkmn_split) <- c("id", "PokeApiName", "species_id", "Height", "Weight", "base_experience", "Type1", "Type2", "TypeID1", "TypeID2") 
 
@@ -93,6 +95,10 @@ names(pokemon_averages) <- c("DexNum",
                             "Beauty",
                             "Popularity",
                             "RatingCount")
+
+ApiName <- pokemon_averages %>% subset(select = PokeApiName)
+ApiNameType <- ApiName %>% left_join(pkmn_metadata, by = "PokeApiName")
+ApiNameType %>% filter(is.na(Type1))
 
 # theNA <- pokemon_rates %>% filter(is.na(Coolness)) #This single Furfrou ranking just has, like, no data, which is weird. Let's see if it has other votes
 # DebFurFrou <- pokemon_rates %>% filter(PokemonName == "Debutante Furfrou")
@@ -186,6 +192,116 @@ pokemon_averages_w_gens <- pokemon_averages %>% mutate(Generation = case_when(De
 pokemon_averages_w_gens <- pokemon_averages_w_gens %>% full_join(sdOnly, by = "PokemonName")
 
 pokemon_averages_w_gens_types <- pokemon_averages_w_gens %>% left_join(pkmn_metadata, by = "PokeApiName")
+
+# Pokemon in the list that are missing types
+missingtypes <- pokemon_averages_w_gens_types %>% filter(is.na(Type1))
+PokeApiName <- missingtypes$PokeApiName
+Type1 <- c("fighting",
+           "electric",
+           "psychic", 
+           "bug", 
+           "bug",
+           "bug",
+           "bug",
+           "grass",
+           "water",
+           "water",
+           "water",
+           "water",
+           "normal",
+           "normal",
+           "normal",
+           "normal",
+           "normal",
+           "normal",
+           "normal",
+           "normal",
+           "normal",
+           "bug",
+           "bug",
+           "bug",
+           "fairy",
+           "fairy",
+           "fairy",
+           "normal",
+           "normal",
+           "normal",
+           "normal",
+           "normal",
+           "normal",
+           "normal",
+           "normal",
+           "normal",
+           "normal",
+           "fairy",
+           "dragon",
+           "dragon",
+           "normal",
+           "ghost",
+           "ghost",
+           "fairy",
+           "normal",
+           "normal",
+           "water",
+           "dragon",
+           "normal",
+           "ghost")
+Type2 <- c("dragon",
+           "dragon", 
+           "No 2nd Type",
+           "No 2nd Type",
+           "No 2nd Type",
+           "No 2nd Type",
+           "flying",
+           "No 2nd Type",
+           "No 2nd Type",
+           "No 2nd Type",
+           "ground",
+           "ground",
+           "No 2nd Type",
+           "grass",
+           "grass",
+           "grass", 
+           "grass",
+           "grass", 
+           "grass",
+           "grass",
+           "grass",
+           "No 2nd Type",
+           "No 2nd Type",
+           "flying",
+           "No 2nd Type",
+           "No 2nd Type",
+           "No 2nd Type",
+           "No 2nd Type",
+           "No 2nd Type",
+           "No 2nd Type",
+           "No 2nd Type",
+           "No 2nd Type",
+           "No 2nd Type",
+           "No 2nd Type",
+           "No 2nd Type",
+           "No 2nd Type",
+           "No 2nd Type",
+           "No 2nd Type",
+           "ground",
+           "ground",
+           "No 2nd Type",
+           "No 2nd Type",
+           "No 2nd Type",
+           "No 2nd Type",
+           "No 2nd Type",
+           "flying",
+           "No 2nd Type",
+           "water",
+           "No 2nd Type",
+           "No 2nd Type")
+missingtypedf <- data.frame(PokeApiName, Type1, Type2)
+
+pokemon_averages_w_gens_types_final <- pokemon_averages_w_gens_types %>% full_join(missingtypedf, by = c("PokeApiName", "Type1", "Type2"))
+pokemon_averages_w_gens_types_final <- pokemon_averages_w_gens_types_final %>% filter(!is.na(Type1))
+
+pokemon_averages_w_gens_types_final$Type2 <- pokemon_averages_w_gens_types_final$Type2 %>% replace_na('No 2nd Type')
 
 write.csv(pokemon_averages_w_gens_types, "average-ratings_w_gens.csv")
 
@@ -533,12 +649,16 @@ gggen <- ggplot(average_by_gen)
 ggregion <- ggplot(average_by_region)
 
 
-gggen +
-  geom_col(aes(x = Generation, y = Popularity)) +
-  geom_text(aes(x = Generation, y = Popularity, label = Popularity))
 
-ggregion +
-  geom_col(aes(x = Region, y = Popularity))
+ggplot(average_by_gen, aes(x = Generation, y = Popularity, fill = Generation)) +
+  geom_col() +
+  geom_text(aes(x = Generation, y = Popularity, label = round(Popularity, 2))) +
+  scale_fill_viridis_d()
+
+ggplot(average_by_region, aes(x = Region, y = Popularity, fill = Region)) +
+  geom_col() +
+  geom_text(aes(x = Region, y = Popularity, label = round(Popularity, 2))) +
+  scale_fill_viridis_d()
            
   
   
