@@ -14,7 +14,8 @@ library(ggpmisc)
 library(ggrepel)
 
 ggtheme <- theme(axis.text.x = element_text(angle = 30, hjust = 1.2, vjust = 1.5, size = 12),
-                   axis.text.y = element_text(size = 11))
+                   axis.text.y = element_text(size = 11),
+                 strip.background,)
 
 averages_ratings <- read.csv("average-ratings_w_gens.csv")
 
@@ -27,8 +28,7 @@ types_cats_long <- averages_ratings %>%
                      Region,
                      Order,
                      PopularitySD,
-                     MeanDesignSD,
-                     id, Height, Weight)) %>%
+                     MeanDesignSD)) %>%
   pivot_longer(cols = c(Complexity,
                         Realism,
                         Artificiality,
@@ -63,6 +63,13 @@ ggplot(types_cats_long2, aes(x = Type, y = MeanRating, fill = Type)) +
   ggtheme
   
 
+ggplot(mean_category_types, aes(x = Type, y = MeanRating, fill = Type)) +
+  geom_col() +
+  coord_flip()+
+  geom_label(aes(x = Type, y = MeanRating, label = Type, fontface = "bold"),position = position_jitter(height = 0.75), color = "white") +
+  scale_fill_viridis_d() +
+  facet_wrap(~Category) +
+  ggtheme
 
 
 
