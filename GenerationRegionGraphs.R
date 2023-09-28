@@ -24,6 +24,8 @@ raw_ratings$Generation <- as.factor(raw_ratings$Generation)
 
 
 
+
+
 average_by_gen <- average_ratings %>% 
   group_by(Generation) %>%
   summarise(Complexity = mean(Complexity),

@@ -12,6 +12,39 @@ library(shiny)
 library(viridisLite)
 library(ggpmisc)
 library(ggrepel)
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+typeColorPalette <- c("grass" = "forestgreen",
+                      "water" = "dodgerblue2",
+                      "fire" = "darkorange2",
+                      "electric" = "yellow",
+                      "normal" = "cornsilk2",
+                      "fighting" = "brown3",
+                      "flying" = "lightskyblue1",
+                      "rock" = "tan",
+                      "ground" = "tan4",
+                      "steel" = "slategray3",
+                      "poison" = "purple",
+                      "bug" = "olivedrab3",
+                      "psychic" = "violetred1",
+                      "ghost" = "darkorchid4",
+                      "dark" = "grey28",
+                      "ice" = "cyan",
+                      "dragon" = "slateblue4",
+                      "fairy" = "plum")
+
+categoryColorPalette <- c("Cuteness" = "hotpink",
+                          "Coolness" = "orange",
+                          "Beauty" = "blue",
+                          "Artificiality" = "green",
+                          "Realism" = "wheat3",
+                          "Humanoid" = "tan3",
+                          "Fantasy" = "violet",
+                          "Complexity" = "grey71",
+                          "Popularity" = "gold1") 
 
 ggtheme <- theme(axis.text.x = element_text(angle = 30, hjust = 1.2, vjust = 1.2, size = 18),
                 axis.text.y = element_text(size = 18),
@@ -22,6 +55,39 @@ ggtheme <- theme(axis.text.x = element_text(angle = 30, hjust = 1.2, vjust = 1.2
                 strip.text = element_text(size = 20))
 
 averages_ratings <- read.csv("average-ratings_w_gens.csv")
+raw_ratings <- read.csv("all-ratings_w_gens.csv")
+
+ratings_w_types <- raw_ratings %>% full_join(averages_ratings %>% subset(select = c(PokemonName, Type1, Type2)), by = "PokemonName")
+
+ratingsTypesLong <- ratings_w_types %>%
+  pivot_longer(cols = c(Type1, Type2), names_to = "TypeSlot", values_to = "Type") %>%
+  subset(select = -TypeSlot)
+
+
+typeMode <- ratingsTypesLong %>% 
+  group_by(Type) %>% 
+  filter(Type != "No 2nd Type") %>%
+  summarise(Complexity = getmode(Complexity),
+              Realism = getmode(Realism),
+              Artificiality = getmode(Artificiality),
+              Fantasy = getmode(Fantasy),
+              Humanoid = getmode(Humanoid),
+              Cuteness = getmode(Cuteness),
+              Coolness = getmode(Coolness),
+              Beauty  = getmode(Beauty),
+              Popularity = getmode(Popularity))
+
+typeModeLongCat <- typeMode %>%   
+  pivot_longer(cols = c(Complexity,
+                        Realism,
+                        Artificiality,
+                        Fantasy,
+                        Humanoid,
+                        Cuteness,
+                        Coolness,
+                        Beauty,
+                        Popularity), names_to = "Category", values_to = "Mode")
+
 
 types_cats_long <- averages_ratings %>%
   subset(select = -c(X, DexNum,
@@ -60,20 +126,20 @@ mean_category_types <- types_cats_long2 %>%
   group_by(Type, Category) %>% 
   summarise(MeanRating = mean(MeanRating)) 
 
-png(filename = "TypeCategoryViolin.png", width = 1000, height = 1400)
+# png(filename = "TypeCategoryViolin.png", width = 1000, height = 1400)
 ggplot(types_cats_long2 %>% filter(Type != "No 2nd Type"), aes(x = Type, y = MeanRating, fill = Type)) +
   geom_violin() +
   labs(title = "Comparing Mean Design Elements to Type", subtitle = "Violin Graphs That Show The Density of Mean Ratings For Each Type in Each Design Category") +
   xlab("Type") +
   ylab("Mean Rating") +
-  scale_fill_viridis_d() +
+  scale_fill_manual(values = typeColorPalette) +
   coord_flip() +
   facet_wrap(~Category) +
   ggtheme
-dev.off()
+# dev.off()
 
 
-png(filename = "TypeCategory.png", width = 1000, height = 1400)
+# png(filename = "TypeCategory.png", width = 1000, height = 1400)
 ggplot(mean_category_types %>% filter(Type != "No 2nd Type"), aes(x = Type, y = MeanRating, fill = Type)) +
   geom_col() +
   coord_flip()+
@@ -83,9 +149,31 @@ ggplot(mean_category_types %>% filter(Type != "No 2nd Type"), aes(x = Type, y = 
   labs(title = "Comparing Mean Design Elements to Type") +
   xlab("Type") +
   ylab("Mean Rating") +
-  scale_fill_viridis_d() +
+  scale_fill_manual(values = typeColorPalette) +
   facet_wrap(~Category) +
+  ggtheme
+# dev.off()
+
+
+png(filename = "ModeCategoryType.png", width = 1200, height = 1400)
+ggplot(typeModeLongCat, aes(x = Category, y = Mode, fill = Type, group = Type)) +
+  geom_col(color = "black") +
+  geom_label(aes(x = Category, y = 0.7, label = Category), color = "black") +
+  scale_fill_manual(values = typeColorPalette) +
+  labs(title = "Mode Category for Each Type") +
+  xlab("Category") +
+  ylab("Mode Rating") +
+  coord_flip() +
+  facet_wrap(~Type) +
   ggtheme
 dev.off()
 
+
+theme(axis.text.x = element_text(size = 11),
+      axis.text.y = element_text(size = 11),
+      title  = element_text(size = 18),
+      plot.subtitle = element_text(size = 13),
+      legend.text = element_text(size = 18),
+      strip.background = element_rect(colour = "black", fill = "white"),
+      strip.text = element_text(size = 15))
 
