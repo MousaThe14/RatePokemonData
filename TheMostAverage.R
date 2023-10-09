@@ -12,6 +12,7 @@ library(shiny)
 library(viridisLite)
 library(ggpmisc)
 library(ggrepel)
+library(plotly)
 # R's base sd() function performs a sample mean
 # This function performs a population mean
 sd.p= function(x){
@@ -19,6 +20,8 @@ sd.p= function(x){
 } 
 averages_ratings <- read.csv("average-ratings_w_gens.csv")
 
+
+# Averages 
 averages <- averages_ratings %>% summarise(Complexity = mean(Complexity),
                                        Realism = mean(Realism),
                                        Artificiality = mean(Artificiality),
@@ -28,6 +31,8 @@ averages <- averages_ratings %>% summarise(Complexity = mean(Complexity),
                                        Coolness =  mean(Coolness),
                                        Beauty = mean(Beauty))
 
+
+# Standard Deviations
 sds <- averages_ratings %>% summarise(Complexity = sd.p(Complexity),
                                            Realism = sd.p(Realism),
                                            Artificiality = sd.p(Artificiality),
@@ -37,8 +42,10 @@ sds <- averages_ratings %>% summarise(Complexity = sd.p(Complexity),
                                            Coolness =  sd.p(Coolness),
                                            Beauty = sd.p(Beauty))
 
-meanPop <-  mean(averages_ratings$Popularity)
+meanPop <-  mean(averages_ratings$Popularity) #
 popSD <- sd.p(averages_ratings$Popularity)
+
+
 
 ##### First pass, Within SD #####                           
 undermean <- averages - sds
@@ -207,8 +214,8 @@ mostaverage_region6 <- withinSD6 %>% count(Region) %>% arrange(n)
 
 ##### Seventh pass, reduce sd by 48.999999999999% #####
 
-undermean7 <- averages - (sds*0.52111111111111)
-overmean7 <- averages + (sds*0.52111111111111)
+undermean7 <- averages - (sds*0.51)
+overmean7 <- averages + (sds*0.51)
 
 withinSD7 <- averages_ratings %>% filter(Complexity >= undermean7$Complexity &
                                            Complexity <= overmean7$Complexity &
@@ -230,9 +237,9 @@ withinSD7$Generation <- as.character(withinSD7$Generation)
 mostaverage_gen7 <- withinSD7 %>% count(Generation) %>% arrange(n)
 mostaverage_region7 <- withinSD7 %>% count(Region) %>% arrange(n)
 
-AlolaMiddle <- averages_ratings %>% filter(PokemonName == "Brionne" |
-                                             PokemonName == "Torracat" |
-                                             PokemonName == "Dartrix") 
+# AlolaMiddle <- averages_ratings %>% filter(PokemonName == "Brionne" |
+#                                              PokemonName == "Torracat" |
+#                                              PokemonName == "Dartrix") 
 
 ##### The most Popular average pokemon #####
 # First we  filter pokemon by being above average popularity
@@ -374,5 +381,55 @@ PopularAverage3 <- aboveMeanPop %>% filter(Complexity >= undermean3$Complexity &
                                            Beauty <= overmean3$Beauty  &
                                            Beauty >= undermean3$Beauty)
 
+
+################## Distance from The Average ##################
+
+distanceFromAverage <- averages_ratings %>% mutate(Complexity = abs(averages$Complexity - Complexity),
+                                                      Realism = abs(averages$Realism - Realism),
+                                                      Artificiality = abs(averages$Artificiality - Artificiality),
+                                                      Fantasy = abs(averages$Fantasy - Fantasy),
+                                                      Humanoid = abs(averages$Humanoid - Humanoid),
+                                                      Cuteness = abs(averages$Cuteness - Cuteness),
+                                                      Coolness =  abs(averages$Coolness - Coolness),
+                                                      Beauty = abs(averages$Beauty - Beauty))
+
+distanceFromAverageLong <- distanceFromAverage %>% 
+  pivot_longer(cols = c(Complexity,
+                        Realism,
+                        Artificiality,
+                        Fantasy,
+                        Humanoid,
+                        Cuteness,
+                        Coolness,
+                        Beauty), names_to = "Category", values_to = "Distance")
+# 
+# sds_long <- sds %>%
+#   pivot_longer(cols = c(Complexity,
+#                         Realism,
+#                         Artificiality,
+#                         Fantasy,
+#                         Humanoid,
+#                         Cuteness,
+#                         Coolness,
+#                         Beauty,
+#                         Popularity), names_to = "Category", values_to = "Distance")
+
+ggplot(distanceFromAverageLong %>% slice_min(Distance, n= 50), aes(x = DexNum, y = Distance, label = PokemonName)) +
+  geom_point(position = "jitter") +
+  geom_label(aes(x = DexNum, y = Distance, label = PokemonName)) +
+  #scale_y_log10() +
+        #geom_hline(data = sds, yintercept = , label = "SD") + 
+    facet_wrap(~Category)
+
+
+bottom10 <- distanceFromAverageLong %>% group_by(Category) %>% slice_min(Distance, n = 1) 
+bottom10pkmn <- bottom10 %>% group_by(PokemonName) %>%
+  view()
+closestCool
+closestCute
+closestBeauty
+closestComplexity
+closestArtificality
+closest
 
 
