@@ -16,6 +16,21 @@ getmode <- function(v) {
   uniqv <- unique(v)
   uniqv[which.max(tabulate(match(v, uniqv)))]
 }
+printPNG <- function(filename, width = 1920, height = 1080, units = px, dpi = 300){
+  png(filename = filename,
+      width = width,
+      height = height,
+      res = dpi)
+  dev.off()
+}
+printSVG <-  function(filename, width = 1920, height = 1080, units = px, dpi = 300){
+  svg(filename = filename,
+      width = width,
+      height = height,
+      res = dpi)
+  dev.off()
+}
+
 
 typeColorPalette <- c("grass" = "forestgreen",
                       "water" = "dodgerblue2",
@@ -157,7 +172,7 @@ ggplot(mean_category_types %>% filter(Type != "No 2nd Type"), aes(x = Type, y = 
 
 png(filename = "ModeCategoryType.png", width = 1200, height = 1400)
 ggplot(typeModeLongCat, aes(x = Category, y = Mode, fill = Type, group = Type)) +
-  geom_col(color = "black") +
+  geom_col(color = "black") +d
   geom_label(aes(x = Category, y = 0.7, label = Category), color = "black") +
   scale_fill_manual(values = typeColorPalette) +
   labs(title = "Mode Category for Each Type") +
@@ -176,4 +191,7 @@ theme(axis.text.x = element_text(size = 11),
       legend.text = element_text(size = 18),
       strip.background = element_rect(colour = "black", fill = "white"),
       strip.text = element_text(size = 15))
+
+
+
 
