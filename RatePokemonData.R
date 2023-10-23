@@ -12,6 +12,7 @@ library(shiny)
 library(viridisLite)
 library(ggpmisc)
 library(ggrepel)
+library(splitstackshape)
 
 ##### Useful Reminders #####
 
@@ -127,7 +128,8 @@ pkmn_metadata$Type2 <- replace_na(pkmn_split$Type2, 'No 2nd Type')
 
 # Importing the Rate Pokemon data The url version downloads it directly from the website.
 pokemon_rates <- read.csv(url("https://ratepkmn.com/dlAll")) %>%
-  na.omit() # Removes rows with missing values (That one Debutante Furfrou)
+  na.omit() # Removes rows with missing values (That one Debutante Furfrou) 
+ 
 
 # Importing the Rate Pokemon data from a the locally downloaded file
 # pokemon_rates <- read.csv("all-ratings.csv")  %>%
@@ -152,7 +154,7 @@ names(pokemon_rates) <- c("DexNum",
 
 pokemon_rates <- pokemon_rates %>% 
   mutate_at("UserID", as.character) %>% # Turns the userID column into strings
-  subset(select = -Timestamp)%>% # Removes the timestamp column
+  #subset(select = -Timestamp)%>% # Removes the timestamp column
   group_by(PokemonName) #Groups ratings by Pokemon name
 
 
@@ -256,7 +258,7 @@ genfactor <- factor(levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9"))
 # For with a regional variants are categorized as part of that Region and their Generation category is for generation that form was introduced
 # Generational gimmick forms (Gigantamax/Mega) are counted for the Generation they were introduced in
 # However they are not counted towards the Region due to the uncertanty of where a form is "from".
-pokemon_averages_w_gens <- pokemon_averages %>% mutate(Generation = case_when(DexNum <= 1010 & DexNum > 905 | str_detect(PokeApiName, "-paldea")~ "9",
+pokemon_averages_w_gens <- pokemon_averages %>% mutate(Generation = case_when(DexNum <= 1017 & DexNum > 905 | str_detect(PokeApiName, "-paldea")~ "9",
                                                                              DexNum <= 905 & DexNum > 809 | str_detect(PokeApiName, "-galar") | str_detect(PokeApiName, "-gmax") | str_detect(PokeApiName, "-hisui") | str_detect(PokeApiName, "-white-striped") ~ "8",
                                                                              DexNum <= 809 & DexNum > 721 | str_detect(PokeApiName, "-alola") ~ "7",
                                                                              DexNum <= 721 & DexNum > 649 | str_detect(PokeApiName, "-mega") | str_detect(PokeApiName, "-primal")~ "6",
@@ -265,7 +267,8 @@ pokemon_averages_w_gens <- pokemon_averages %>% mutate(Generation = case_when(De
                                                                              DexNum <= 386 & DexNum > 251 ~ "3",
                                                                              DexNum <= 251 & DexNum > 151 ~ "2",
                                                                              DexNum <= 151 ~ "1"),
-                                                    Region = case_when(DexNum <= 1010 & DexNum > 905 | str_detect(PokeApiName, "-paldea") ~ "Paldea",
+                                                    Region = case_when(DexNum <= 1017 & DexNum > 1010 ~ "Kitakami",
+                                                                       DexNum <= 1010 & DexNum > 905 | str_detect(PokeApiName, "-paldea") ~ "Paldea",
                                                                        DexNum <= 905 & DexNum > 809 | str_detect(PokeApiName, "-galar")  ~ "Galar",
                                                                        DexNum <= 809 & DexNum > 721 | str_detect(PokeApiName, "-alola") ~ "Alola",
                                                                        str_detect(PokeApiName, "-hisui") | str_detect(PokeApiName, "-white-striped") ~ "Hisui",
@@ -284,7 +287,8 @@ pokemon_averages_w_gens <- pokemon_averages %>% mutate(Generation = case_when(De
                                             "Alola",
                                             "Galar",
                                             "Hisui",
-                                            "Paldea"), ordered = TRUE)) %>%
+                                            "Paldea",
+                                            "Kitakami"), ordered = TRUE)) %>%
   # Order was introduced for chronological reasons.
   # Factoring the Regions wasn't working as intended so Order was created to compensate for that for graphing purposes
   # This will have to be done for the generations when Gen 10 arrives due the system's tendency to words as "1, 10, 2,etc"
@@ -297,7 +301,8 @@ pokemon_averages_w_gens <- pokemon_averages %>% mutate(Generation = case_when(De
                            Region == "Alola" ~ 7,
                            Region == "Galar" ~ 8,
                            Region == "Hisui" ~ 9,
-                           Region == "Paldea" ~ 10))
+                           Region == "Paldea" ~ 10,
+                           Region == "Kitakami" ~ 11))
 
 
 ##### Merging Types and SDs
@@ -500,7 +505,7 @@ write.csv(pokemon_averages_w_gens_types_final, "average-ratings_enriched.csv")
 # I did the Generation and Region thing, 
 
 
-pokemon_rates_w_gens <- pokemon_rates %>% mutate(Generation = case_when(DexNum <= 1010 & DexNum > 905 | str_detect(PokemonName, "Palean ")~ "9",
+pokemon_rates_w_gens <- pokemon_rates %>% mutate(Generation = case_when(DexNum <= 1017 & DexNum > 905 | str_detect(PokemonName, "Paldean ")~ "9",
                                                                             DexNum <= 905 & DexNum > 809 | str_detect(PokemonName, "Galarian ") | str_detect(PokemonName, "Gigantamax ") | str_detect(PokemonName, "-hisui") | str_detect(PokemonName, "-white-striped") ~ "8",
                                                                             DexNum <= 809 & DexNum > 721 | str_detect(PokemonName, "Alolan ") ~ "7",
                                                                             DexNum <= 721 & DexNum > 649 | str_detect(PokemonName, "Mega ") | str_detect(PokemonName, "Primal ") ~ "6",
@@ -509,7 +514,8 @@ pokemon_rates_w_gens <- pokemon_rates %>% mutate(Generation = case_when(DexNum <
                                                                             DexNum <= 386 & DexNum > 251 ~ "3",
                                                                             DexNum <= 251 & DexNum > 151 ~ "2",
                                                                             DexNum <= 151 ~ "1"),
-                                                     Region = case_when(DexNum <= 1010 & DexNum > 905 | str_detect(PokemonName, "Palean ") ~ "Paldea",
+                                                     Region = case_when(DexNum <= 1017 & DexNum > 1010 ~ "Kitakami",
+                                                                        DexNum <= 1010 & DexNum > 905 | str_detect(PokemonName, "Paldean ") ~ "Paldea",
                                                                         DexNum <= 905 & DexNum > 809 | str_detect(PokemonName, "Galarian ")  ~ "Galar",
                                                                         DexNum <= 809 & DexNum > 721 | str_detect(PokemonName, "Alolan ") ~ "Alola",
                                                                         str_detect(PokemonName, "Hisuian ") | str_detect(PokemonName, "White-Stripe") ~ "Hisui",
@@ -528,8 +534,9 @@ pokemon_rates_w_gens <- pokemon_rates %>% mutate(Generation = case_when(DexNum <
                                             "Alola",
                                             "Galar",
                                             "Hisui",
-                                            "Paldea"), ordered = TRUE)) %>%
-  mutate(Order = case_when(Region == "Kanto" ~ 1, Region == "Johto" ~ 2, Region == "Hoenn" ~ 3, Region == "Sinnoh" ~ 4, Region == "Unova" ~ 5, Region == "Kalos" ~ 6, Region == "Alola" ~ 7, Region == "Galar" ~ 8, Region == "Hisui" ~ 9, Region == "Paldea" ~ 10))
+                                            "Paldea",
+                                            "Kitakami"), ordered = TRUE)) %>%
+  mutate(Order = case_when(Region == "Kanto" ~ 1, Region == "Johto" ~ 2, Region == "Hoenn" ~ 3, Region == "Sinnoh" ~ 4, Region == "Unova" ~ 5, Region == "Kalos" ~ 6, Region == "Alola" ~ 7, Region == "Galar" ~ 8, Region == "Hisui" ~ 9, Region == "Paldea" ~ 10, Region == "Kitakami" ~ 11))
 
 # Suddenly realized I might be able to incorporate types after all
 # Just gonna extract the names and types columns
@@ -542,7 +549,6 @@ rates_final <- pokemon_rates_w_gens %>% full_join(names_and_types, by = "Pokemon
 rates_final %>% na.omit()
 
 # Okay looks like it didn't screw anything up. Going with this.
-
 
 # doing the names again purely for aesthetic reasons
 rates_final$Type1<- str_replace_all(rates_final$Type1, c("normal" = "Normal",
@@ -587,6 +593,16 @@ rates_final$Type2<- str_replace_all(rates_final$Type2, c("normal" = "Normal",
 
 
 
+
+
+
+
+#converting dates from UNIX to readable timestmaps
+rates_final <- rates_final %>% 
+  mutate(Timestamp = as_datetime(Timestamp)) 
+
+
+
 # Send to print
 write.csv(rates_final, "all-ratings_enriched.csv") 
 #####
@@ -603,6 +619,23 @@ globalAverages <- raw_ratings %>%
           Coolness =  mean(Coolness),
           Beauty = mean(Beauty),
           Popularity = mean(Popularity))
+
+# round(globalAverages)
+# 
+# so if we round to whole numbers our averages are
+# 
+# ````
+# > Complexity 3
+# > Realism: 2
+# > Artificiality 2
+# > Fantasy 3
+# > Humanoid 2
+# > Cuteness 3
+# > Coolness 3
+# > Beauty 3
+# ````
+# And while our raw numbers aren't whole numbers, the original scale is'
+
 # Remember those divisveness stats I calculated Earlier? Yeah
 # Yeah, me neither, throwing them on to the globalAverages table
 globalDivisiveness <- sdOnly %>% 
@@ -751,11 +784,11 @@ write.csv(globalAverageType, "GlobalAverages-Type.csv")
 
 
 ######
-AverageCorrelation <- cor(pokemon_averages_w_gens %>% mutate_at("Generation", as.numeric) %>% subset(select = -c(DexNum, PokemonName, PokeApiName, RatingCount, Region, Order, Generation))) 
-corrplot(AverageCorrelation, addCoef.col ='black', type = 'lower', order = "FPC")
-
-FullCorrelation <- cor(pokemon_rates_w_gens %>% na.omit() %>% mutate_at("Generation", as.numeric) %>% subset(select = -c(DexNum, PokemonName, UserID, Region, Order, Generation))) 
-corrplot(FullCorrelation, addCoef.col ='black', type = 'lower', order="FPC")
+# AverageCorrelation <- cor(pokemon_averages_w_gens %>% mutate_at("Generation", as.numeric) %>% subset(select = -c(DexNum, PokemonName, PokeApiName, RatingCount, Region, Order, Generation))) 
+# corrplot(AverageCorrelation, addCoef.col ='black', type = 'lower', order = "FPC")
+# 
+# FullCorrelation <- cor(pokemon_rates_w_gens %>% na.omit() %>% mutate_at("Generation", as.numeric) %>% subset(select = -c(DexNum, PokemonName, UserID, Region, Order, Generation))) 
+# corrplot(FullCorrelation, addCoef.col ='black', type = 'lower', order="FPC")
 
 
 

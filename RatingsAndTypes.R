@@ -172,7 +172,7 @@ ggplot(mean_category_types %>% filter(Type != "No 2nd Type"), aes(x = Type, y = 
 
 png(filename = "ModeCategoryType.png", width = 1200, height = 1400)
 ggplot(typeModeLongCat, aes(x = Category, y = Mode, fill = Type, group = Type)) +
-  geom_col(color = "black") +d
+  geom_col(color = "black") +
   geom_label(aes(x = Category, y = 0.7, label = Category), color = "black") +
   scale_fill_manual(values = typeColorPalette) +
   labs(title = "Mode Category for Each Type") +

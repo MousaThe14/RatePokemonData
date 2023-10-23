@@ -13,12 +13,13 @@ library(viridisLite)
 library(ggpmisc)
 library(ggrepel)
 library(plotly)
+library(gridExtra)
 # R's base sd() function performs a sample mean
 # This function performs a population mean
 sd.p= function(x){
   sd(x) * sqrt((length(x)-1)/length(x))
 } 
-averages_ratings <- read.csv("average-ratings_w_gens.csv")
+averages_ratings <- read.csv("average-ratings_enriched.csv")
 
 
 # Averages 
@@ -422,14 +423,21 @@ ggplot(distanceFromAverageLong %>% slice_min(Distance, n= 50), aes(x = DexNum, y
     facet_wrap(~Category)
 
 
-bottom10 <- distanceFromAverageLong %>% group_by(Category) %>% slice_min(Distance, n = 1) 
-bottom10pkmn <- bottom10 %>% group_by(PokemonName) %>%
-  view()
+bottom1 <- distanceFromAverageLong %>% group_by(Category) %>%
+  slice_min(Distance, n = 1) %>%
+  subset(select = c(DexNum, PokemonName, Popularity, PopularitySD, MeanDesignSD, Category, Distance))
+
+
+
+printPNG(filename = "MostAverage.png", dataset = grid.table(bottom1), height = 90*nrow(bottom1), width = 60*nrow(bottom1))
+
 closestCool
 closestCute
 closestBeauty
 closestComplexity
 closestArtificality
-closest
+closestHumanoid
+closestRealism
+
 
 
