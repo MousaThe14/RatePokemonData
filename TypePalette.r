@@ -31,7 +31,7 @@ printPNG = function(filename, dataset,width = 1920, height = 1080, units = "px",
 
 
 ### Print SVG ###
-printSVG = function(filename,dataset, width = 1920, height = 1080, units = px, dpi = 300){
+printSVG = function(filename,dataset, width = 1920, height = 1080, units = "px", dpi = 300){
 
   svg(filename = filename,
       width = width,

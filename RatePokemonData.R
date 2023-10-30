@@ -864,9 +864,9 @@ write.csv(globalAverageType, "GlobalAverages-Type.csv")
 
 
 ######
-# AverageCorrelation <- cor(pokemon_averages_w_gens %>% mutate_at("Generation", as.numeric) %>% subset(select = -c(DexNum, PokemonName, PokeApiName, RatingCount, Region, Order, Generation))) 
+# AverageCorrelation <- cor(pokemon_averages_w_gens %>% mutate_at("Generation", as.numeric) %>% subset(select = -c(DexNum, PokemonName, PokeApiName, RatingCount, Region, Order, Generation)))
 # corrplot(AverageCorrelation, addCoef.col ='black', type = 'lower', order = "FPC")
-# 
+
 # FullCorrelation <- cor(pokemon_rates_w_gens %>% na.omit() %>% mutate_at("Generation", as.numeric) %>% subset(select = -c(DexNum, PokemonName, UserID, Region, Order, Generation))) 
 # corrplot(FullCorrelation, addCoef.col ='black', type = 'lower', order="FPC")
 
