@@ -16,8 +16,8 @@ library(splitstackshape)
 
 ##### Useful Reminders #####
 
-# As of this moment, there are 1229 Pokemon designs that are being ranked.
-# So if, at any point, the number of rows is not 1229
+# As of this moment, there are 1241 Pokemon designs that are being ranked.
+# So if, at any point, the number of rows is not 1241 when you've grouped by PokemonName
 # Then either you intended for a Pokemon to show up multiple times in the table for what you're doing at the moment
 # Or something has gone wrong and you need to figure out what.
 # This number is liable to change as new Pokemon are added through upcoming DLC or a potential Legends game
@@ -112,11 +112,12 @@ names(pkmn_split) <- c("id", "PokeApiName", "species_id", "Type1", "Type2", "Typ
 
 
 # Reducing pkmn_split to the bare minimum needed ot merge with the ratepkmn data tables
-pkmn_metadata <- pkmn_split %>% subset(select = -c(id, species_id, TypeID1, TypeID2))
+pkmn_metadata <- pkmn_split %>% subset(select = -c(id, species_id))
 
 
 # replacing the NAs in the Type2 column with "No 2nd Type"
 pkmn_metadata$Type2 <- replace_na(pkmn_split$Type2, 'No 2nd Type')
+pkmn_metadata$TypeID2 <- replace_na(pkmn_split$TypeID2, 19)
   
 #####
 
@@ -442,7 +443,6 @@ withtypes <- pokemon_averages_w_gens_types %>% filter(!is.na(Type1))
 # Then I slapped on the list of pokemon whose types I restored onto the end of it.
 pokemon_averages_w_gens_types_final <- withtypes %>% rbind(missingtypes)
 
-
 # doing the names again purely for aesthetic reasons
 pokemon_averages_w_gens_types_final$Type1<- str_replace_all(pokemon_averages_w_gens_types_final$Type1, c("normal" = "Normal",
                                                                                                                 "fighting" = "Fighting",
@@ -494,6 +494,49 @@ pokemon_averages_w_gens_types_final <- pokemon_averages_w_gens_types_final %>%
                          labels = c("Normal", "Fighting", "Flying", "Poison", "Ground", "Rock", "Bug", "Ghost", "Steel",
                                     "Fire", "Water", "Grass", "Electric", "Psychic", "Ice", "Dragon", "Dark", "Fairy", "No 2nd Type"),
                          ordered = TRUE))
+
+
+# I also need to give the types their numbers for some correlation analysis
+
+pokemon_averages_final<- pokemon_averages_w_gens_types_final %>% 
+  mutate(TypeID1 = case_when(Type1 == "Normal" ~ 1,
+                             Type1 == "Fighting" ~ 2,
+                              Type1 == "Flying" ~ 3,
+                              Type1 == "Poison" ~4,
+                              Type1 =="Ground" ~ 5,
+                              Type1 =="Rock" ~ 6,
+                              Type1 == "Bug" ~ 7,
+                              Type1 == "Ghost" ~ 8, 
+                              Type1=="Steel" ~ 9,
+                              Type1 == "Fire" ~ 10,
+                              Type1 =="Water" ~ 11,
+                              Type1 == "Grass" ~ 12,
+                              Type1 == "Electric" ~ 13,
+                              Type1 == "Psychic" ~ 14,
+                              Type1 == "Ice" ~ 15,
+                               Type1 == "Dragon" ~ 16,
+                               Type1 == "Dark" ~ 17,
+                               Type1 == "Fairy" ~ 18,
+                               Type1 == "No 2nd Type" ~ 19),
+         TypeID2 = case_when(Type2 == "Normal" ~ 1,
+                             Type2 == "Fighting" ~ 2,
+                             Type2 == "Flying" ~ 3,
+                             Type2 == "Poison" ~4,
+                             Type2 =="Ground" ~ 5,
+                             Type2 =="Rock" ~ 6,
+                             Type2 == "Bug" ~ 7,
+                             Type2 == "Ghost" ~ 8, 
+                             Type2=="Steel" ~ 9,
+                             Type2 == "Fire" ~ 10,
+                             Type2 =="Water" ~ 11,
+                             Type2 == "Grass" ~ 12,
+                             Type2 == "Electric" ~ 13,
+                             Type2 == "Psychic" ~ 14,
+                             Type2 == "Ice" ~ 15,
+                             Type2 == "Dragon" ~ 16,
+                             Type2 == "Dark" ~ 17,
+                             Type2 == "Fairy" ~ 18,
+                             Type2 == "No 2nd Type" ~ 19))
 
 # And send to print for further use
 write.csv(pokemon_averages_w_gens_types_final, "average-ratings_enriched.csv")
@@ -592,10 +635,47 @@ rates_final$Type2<- str_replace_all(rates_final$Type2, c("normal" = "Normal",
 
 
 
+# I also need to give the types their numbers for some correlation analysis
 
-
-
-
+rates_final<- rates_final %>% 
+  mutate(Type1Id = case_when(Type1 == "Normal" ~ 1,
+                             Type1 == "Fighting" ~ 2,
+                             Type1 == "Flying" ~ 3,
+                             Type1 == "Poison" ~4,
+                             Type1 =="Ground" ~ 5,
+                             Type1 =="Rock" ~ 6,
+                             Type1 == "Bug" ~ 7,
+                             Type1 == "Ghost" ~ 8, 
+                             Type1=="Steel" ~ 9,
+                             Type1 == "Fire" ~ 10,
+                             Type1 =="Water" ~ 11,
+                             Type1 == "Grass" ~ 12,
+                             Type1 == "Electric" ~ 13,
+                             Type1 == "Psychic" ~ 14,
+                             Type1 == "Ice" ~ 15,
+                             Type1 == "Dragon" ~ 16,
+                             Type1 == "Dark" ~ 17,
+                             Type1 == "Fairy" ~ 18,
+                             Type1 == "No 2nd Type" ~ 19),
+         Type2Id = case_when(Type2 == "Normal" ~ 1,
+                             Type2 == "Fighting" ~ 2,
+                             Type2 == "Flying" ~ 3,
+                             Type2 == "Poison" ~4,
+                             Type2 =="Ground" ~ 5,
+                             Type2 =="Rock" ~ 6,
+                             Type2 == "Bug" ~ 7,
+                             Type2 == "Ghost" ~ 8, 
+                             Type2=="Steel" ~ 9,
+                             Type2 == "Fire" ~ 10,
+                             Type2 =="Water" ~ 11,
+                             Type2 == "Grass" ~ 12,
+                             Type2 == "Electric" ~ 13,
+                             Type2 == "Psychic" ~ 14,
+                             Type2 == "Ice" ~ 15,
+                             Type2 == "Dragon" ~ 16,
+                             Type2 == "Dark" ~ 17,
+                             Type2 == "Fairy" ~ 18,
+                             Type2 == "No 2nd Type" ~ 19))
 
 #converting dates from UNIX to readable timestmaps
 rates_final <- rates_final %>% 
