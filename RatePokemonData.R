@@ -16,11 +16,10 @@ library(splitstackshape)
 
 ##### Useful Reminders #####
 
-# As of this moment, there are 1241 Pokemon designs that are being ranked.
-# So if, at any point, the number of rows is not 1241 when you've grouped by PokemonName
+# As of this moment, there are 1251 Pokemon designs that are being ranked.
+# So if, at any point, the number of rows is not 1251 when you've grouped by PokemonName
 # Then either you intended for a Pokemon to show up multiple times in the table for what you're doing at the moment
 # Or something has gone wrong and you need to figure out what.
-# This number is liable to change as new Pokemon are added through upcoming DLC or a potential Legends game
 # This dataset is valid until Generation 10 when the survey will be rebooted.
 
 
