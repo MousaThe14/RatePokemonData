@@ -257,8 +257,16 @@ genfactor <- factor(levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9"))
 # So for this part we're doing a big mutate(case_when()) where if a pokemon has a DexNum within a certain range it's given a column with the appropriate region and generation
 # For with a regional variants are categorized as part of that Region and their Generation category is for generation that form was introduced
 # Generational gimmick forms (Gigantamax/Mega) are counted for the Generation they were introduced in
-# However they are not counted towards the Region due to the uncertanty of where a form is "from".
-pokemon_averages_w_gens <- pokemon_averages %>% mutate(Generation = case_when(DexNum <= 1017 & DexNum > 905 | str_detect(PokeApiName, "-paldea")~ "9",
+# However they are not counted towards the Region due to the uncertainty of where a form is "from".
+
+# Kitakami and the Blueberry Academy complicate the relationship between Generation and Region in the following ways
+
+
+# Archaludon(DexNum 1018) and Hydrapple(DexNum 1019) were introduced in Gen 9 however they will be included in the Unova region for now.
+# DexNum 1020-1023 are part of Paldea
+# DexNum 1011-2017 and 1025 are part of Kitakami
+
+pokemon_averages_w_gens <- pokemon_averages %>% mutate(Generation = case_when(DexNum <= 1025 & DexNum > 905 | str_detect(PokeApiName, "-paldea")~ "9",
                                                                              DexNum <= 905 & DexNum > 809 | str_detect(PokeApiName, "-galar") | str_detect(PokeApiName, "-gmax") | str_detect(PokeApiName, "-hisui") | str_detect(PokeApiName, "-white-striped") ~ "8",
                                                                              DexNum <= 809 & DexNum > 721 | str_detect(PokeApiName, "-alola") ~ "7",
                                                                              DexNum <= 721 & DexNum > 649 | str_detect(PokeApiName, "-mega") | str_detect(PokeApiName, "-primal")~ "6",
@@ -267,7 +275,10 @@ pokemon_averages_w_gens <- pokemon_averages %>% mutate(Generation = case_when(De
                                                                              DexNum <= 386 & DexNum > 251 ~ "3",
                                                                              DexNum <= 251 & DexNum > 151 ~ "2",
                                                                              DexNum <= 151 ~ "1"),
-                                                    Region = case_when(DexNum <= 1017 & DexNum > 1010 ~ "Kitakami",
+                                                    Region = case_when(DexNum == 1025 ~ "Kitakami",
+                                                                       DexNum <= 1024 & DexNum > 1019 ~ "Paldea",
+                                                                       DexNum <= 1019 & DexNum > 1017 ~ "Unova",
+                                                                       DexNum <= 1017 & DexNum > 1010 ~ "Kitakami",
                                                                        DexNum <= 1010 & DexNum > 905 | str_detect(PokeApiName, "-paldea") ~ "Paldea",
                                                                        DexNum <= 905 & DexNum > 809 | str_detect(PokeApiName, "-galar")  ~ "Galar",
                                                                        DexNum <= 809 & DexNum > 721 | str_detect(PokeApiName, "-alola") ~ "Alola",
@@ -324,7 +335,7 @@ pokemon_averages_w_gens_types <- averages_gens_sds %>% left_join(pkmn_metadata, 
 
 
 # Pokemon in the list that are missing types
-missingtypes <- pokemon_averages_w_gens_types %>% filter(is.na(Type1))
+missingtypes <- pokemon_averages_w_gens_types %>% filter(is.na(TypeID1))
 # PokeApiName <- missingtypes$PokeApiName
 
 ##### Why yes, I did manually have to type these out in order  
@@ -377,7 +388,9 @@ Type1 <- c("fighting",
            "water",
            "dragon",
            "normal",
-           "ghost")
+           "ghost",
+           "grass",
+           "grass")
 ##### Twice
 Type2 <- c("dragon",
            "dragon", 
@@ -428,7 +441,9 @@ Type2 <- c("dragon",
            "No 2nd Type",
            "water",
            "No 2nd Type",
-           "No 2nd Type")
+           "No 2nd Type",
+           "ghost",
+           "ghost")
 
 
 # Giving back those pokemon with missing types their types back
@@ -547,7 +562,7 @@ write.csv(pokemon_averages_w_gens_types_final, "average-ratings_enriched.csv")
 # I did the Generation and Region thing, 
 
 
-pokemon_rates_w_gens <- pokemon_rates %>% mutate(Generation = case_when(DexNum <= 1017 & DexNum > 905 | str_detect(PokemonName, "Paldean ")~ "9",
+pokemon_rates_w_gens <- pokemon_rates %>% mutate(Generation = case_when(DexNum <= 1025 & DexNum > 905 | str_detect(PokemonName, "Paldean ")~ "9",
                                                                             DexNum <= 905 & DexNum > 809 | str_detect(PokemonName, "Galarian ") | str_detect(PokemonName, "Gigantamax ") | str_detect(PokemonName, "-hisui") | str_detect(PokemonName, "-white-striped") ~ "8",
                                                                             DexNum <= 809 & DexNum > 721 | str_detect(PokemonName, "Alolan ") ~ "7",
                                                                             DexNum <= 721 & DexNum > 649 | str_detect(PokemonName, "Mega ") | str_detect(PokemonName, "Primal ") ~ "6",
@@ -556,8 +571,11 @@ pokemon_rates_w_gens <- pokemon_rates %>% mutate(Generation = case_when(DexNum <
                                                                             DexNum <= 386 & DexNum > 251 ~ "3",
                                                                             DexNum <= 251 & DexNum > 151 ~ "2",
                                                                             DexNum <= 151 ~ "1"),
-                                                     Region = case_when(DexNum <= 1017 & DexNum > 1010 ~ "Kitakami",
-                                                                        DexNum <= 1010 & DexNum > 905 | str_detect(PokemonName, "Paldean ") ~ "Paldea",
+                                                     Region = case_when(DexNum == 1025 ~ "Kitakami",
+                                                                        DexNum <= 1024 & DexNum > 1019 ~ "Paldea",
+                                                                        DexNum <= 1019 & DexNum > 1017 ~ "Unova",
+                                                                        DexNum <= 1017 & DexNum > 1010 ~ "Kitakami",
+                                                                        DexNum <= 1010 & DexNum > 905 | str_detect(PokemonName, "-paldea") ~ "Paldea",
                                                                         DexNum <= 905 & DexNum > 809 | str_detect(PokemonName, "Galarian ")  ~ "Galar",
                                                                         DexNum <= 809 & DexNum > 721 | str_detect(PokemonName, "Alolan ") ~ "Alola",
                                                                         str_detect(PokemonName, "Hisuian ") | str_detect(PokemonName, "White-Stripe") ~ "Hisui",
@@ -637,7 +655,7 @@ rates_final$Type2<- str_replace_all(rates_final$Type2, c("normal" = "Normal",
 # I also need to give the types their numbers for some correlation analysis
 
 rates_final<- rates_final %>% 
-  mutate(Type1Id = case_when(Type1 == "Normal" ~ 1,
+  mutate(TypeID1 = case_when(Type1 == "Normal" ~ 1,
                              Type1 == "Fighting" ~ 2,
                              Type1 == "Flying" ~ 3,
                              Type1 == "Poison" ~4,
@@ -656,7 +674,7 @@ rates_final<- rates_final %>%
                              Type1 == "Dark" ~ 17,
                              Type1 == "Fairy" ~ 18,
                              Type1 == "No 2nd Type" ~ 19),
-         Type2Id = case_when(Type2 == "Normal" ~ 1,
+         TypeID2 = case_when(Type2 == "Normal" ~ 1,
                              Type2 == "Fighting" ~ 2,
                              Type2 == "Flying" ~ 3,
                              Type2 == "Poison" ~4,

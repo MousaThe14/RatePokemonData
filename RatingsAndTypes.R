@@ -39,25 +39,24 @@ printSVG = function(filename, dataset, width = 1920, height = 1080, units = "px"
   dev.off()
 }
 
-
-typeColorPalette <- c("grass" = "forestgreen",
-                      "water" = "dodgerblue2",
-                      "fire" = "darkorange2",
-                      "electric" = "yellow",
-                      "normal" = "cornsilk2",
-                      "fighting" = "brown3",
-                      "flying" = "lightskyblue1",
-                      "rock" = "tan",
-                      "ground" = "tan4",
-                      "steel" = "slategray3",
-                      "poison" = "purple",
-                      "bug" = "olivedrab3",
-                      "psychic" = "violetred1",
-                      "ghost" = "darkorchid4",
-                      "dark" = "grey28",
-                      "ice" = "cyan",
-                      "dragon" = "slateblue4",
-                      "fairy" = "plum")
+typeColorPalette <- c("Grass" = "#3FA129",
+                      "Water" = "#2980EF",
+                      "Fire" = "#E62829",
+                      "Electric" = "#FAC000",
+                      "Normal" = "#9FA19F",
+                      "Fighting" = "#FF8000",
+                      "Flying" = "#81B9EF",
+                      "Rock" = "#AFA981",
+                      "Ground" = "#915121",
+                      "Steel" = "#60A1B8",
+                      "Poison" = "#9141CB",
+                      "Bug" = "#91A119",
+                      "Psychic" = "#EF4179",
+                      "Ghost" = "#704170",
+                      "Dark" = "#624D4E",
+                      "Ice" = "#3DCEF3",
+                      "Dragon" = "#5060E1",
+                      "Fairy" = "#EF70EF")
 
 categoryColorPalette <- c("Cuteness" = "hotpink",
                           "Coolness" = "orange",
@@ -77,12 +76,12 @@ ggtheme <- theme(axis.text.x = element_text(angle = 30, hjust = 1.2, vjust = 1.2
                  strip.background = element_rect(colour = "black", fill = "white"),
                 strip.text = element_text(size = 20))
 
-averages_ratings <- read.csv("average-ratings_w_gens.csv")
-raw_ratings <- read.csv("all-ratings_w_gens.csv")
+averages_ratings <- read.csv("average-ratings_enriched.csv")
+raw_ratings <- read.csv("all-ratings_enriched.csv")
 
 ratings_w_types <- raw_ratings %>% full_join(averages_ratings %>% subset(select = c(PokemonName, Type1, Type2)), by = "PokemonName")
 
-ratingsTypesLong <- ratings_w_types %>%
+ratingsTypesLong <- raw_ratings %>%
   pivot_longer(cols = c(Type1, Type2), names_to = "TypeSlot", values_to = "Type") %>%
   subset(select = -TypeSlot)
 
