@@ -37,6 +37,10 @@ pokemonratings <- read.csv("all-ratings_enriched.csv") %>% na.omit()
 pokemonratings <- read.csv("average-ratings_enriched.csv")
 
 
+typeFactor <- factor(levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19),
+                     labels = c("Normal", "Fighting", "Flying", "Poison", "Ground", "Rock", "Bug", "Ghost", "Steel",
+                                "Fire", "Water", "Grass", "Electric", "Psychic", "Ice", "Dragon", "Dark", "Fairy", "No 2nd Type"),
+                     ordered = TRUE)
 
 
 gen1 <- pokemonratings %>% filter(Generation == 1)
@@ -196,6 +200,8 @@ byType <-  pokemonratings %>%
                              Type == "No 2nd Type" ~ 19)) %>%
   filter(Type != "No 2nd Type")
   
+# levels(byType$Type) <- factor(typeFactor)
+
 typeCats <- append(Categories, "TypeID")
 
 
