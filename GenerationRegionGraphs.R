@@ -16,8 +16,8 @@ library(ggrepel)
 ggtheme <- theme(axis.text.x = element_text(angle = 30, hjust = 1.2, vjust = 1.5, size = 12),
                  axis.text.y = element_text(size = 11))
 
-average_ratings <- read.csv("average-ratings_w_gens.csv")
-raw_ratings <- read.csv("all-ratings_w_gens.csv")
+average_ratings <- read.csv("average-ratings_enriched.csv")
+raw_ratings <- read.csv("all-ratings_enriched.csv")
 
 average_ratings$Generation <- as.factor(average_ratings$Generation)
 raw_ratings$Generation <- as.factor(raw_ratings$Generation)

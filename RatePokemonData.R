@@ -552,8 +552,18 @@ pokemon_averages_final<- pokemon_averages_w_gens_types_final %>%
                              Type2 == "Fairy" ~ 18,
                              Type2 == "No 2nd Type" ~ 19))
 
+
+# Just came up with a new vector for analysis! The Gimmick Factor! This is for Megas, Primals, and Gigantimax Pokemon.
+# Basically I'll creator a factor column called GimmickFactor with no gimmick being 0 and Gimmick being 1
+
+
+pokemon_averages_final_w_gimmick <- pokemon_averages_final %>% mutate(GimmickFactor = case_when(str_detect(PokeApiName, "-gmax") | str_detect(PokeApiName, "-mega") | str_detect(PokeApiName, "-primal") ~ 1))
+
+pokemon_averages_final <- pokemon_averages_final_w_gimmick %>% mutate(GimmickFactor = replace_na(GimmickFactor, 0))
+
+
 # And send to print for further use
-write.csv(pokemon_averages_w_gens_types_final, "average-ratings_enriched.csv")
+write.csv(pokemon_averages_final, "average-ratings_enriched.csv")
 
 
 
@@ -697,6 +707,15 @@ rates_final<- rates_final %>%
 #converting dates from UNIX to readable timestmaps
 rates_final <- rates_final %>% 
   mutate(Timestamp = as_datetime(Timestamp)) 
+
+
+# Just came up with a new vector for analysis! The Gimmick Factor! This is for Megas, Primals, and Gigantimax Pokemon.
+# Basically I'll creator a factor column called GimmickFactor with no gimmick being 0 and Gimmick being 1
+
+
+rates_final_w_gimmick <- rates_final %>% mutate(GimmickFactor = case_when(str_detect(PokemonName, "Gigantamax ") | str_detect(PokemonName, "Mega ") | str_detect(PokemonName, "Primal ") ~ 1))
+
+rates_final <- rates_final_w_gimmick %>% mutate(GimmickFactor = replace_na(GimmickFactor, 0))
 
 
 
