@@ -25,8 +25,8 @@ printPNG = function(filename, dataset,width = 1920, height = 1080, units = "px",
       width = width,
       height = height,
       res = dpi)
-  dataset
-  dev.off()
+      dataset
+      dev.off()
 }
 
 

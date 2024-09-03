@@ -22,6 +22,13 @@ corr_function <- function(data, variables){
   corrplot(cor(data), addCoef.col ='black', type = 'lower')
 }
 
+
+ttest <- function(){
+  data <- data %>% subset(select = variables)
+cor(data)
+  
+}
+
 Categories <- c("Complexity",
                 "Realism",
                 "Artificiality",
@@ -34,7 +41,7 @@ Categories <- c("Complexity",
 
 
 pokemonratings <- read.csv("all-ratings_enriched.csv") %>% na.omit()
-pokemonratings <- read.csv("average-ratings_enriched.csv")
+pokemonaverages <- read.csv("average-ratings_enriched.csv")
 
 
 typeFactor <- factor(levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19),
@@ -43,27 +50,27 @@ typeFactor <- factor(levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 1
                      ordered = TRUE)
 
 
-gen1 <- pokemonratings %>% filter(Generation == 1)
-gen2 <- pokemonratings %>% filter(Generation == 2)
-gen3 <- pokemonratings %>% filter(Generation == 3)
-gen4 <- pokemonratings %>% filter(Generation == 4)
-gen5 <- pokemonratings %>% filter(Generation == 5)
-gen6 <- pokemonratings %>% filter(Generation == 6)
-gen7 <- pokemonratings %>% filter(Generation == 7)
-gen8 <- pokemonratings %>% filter(Generation == 8)
-gen9 <- pokemonratings %>% filter(Generation == 9)
+gen1 <- pokemonaverages %>% filter(Generation == 1)
+gen2 <- pokemonaverages %>% filter(Generation == 2)
+gen3 <- pokemonaverages %>% filter(Generation == 3)
+gen4 <- pokemonaverages %>% filter(Generation == 4)
+gen5 <- pokemonaverages %>% filter(Generation == 5)
+gen6 <- pokemonaverages %>% filter(Generation == 6)
+gen7 <- pokemonaverages %>% filter(Generation == 7)
+gen8 <- pokemonaverages %>% filter(Generation == 8)
+gen9 <- pokemonaverages %>% filter(Generation == 9)
 
-kanto <- pokemonratings %>% filter(Region == "Kanto")
-johto <- pokemonratings %>% filter(Region == "Johto")
-hoenn <- pokemonratings %>% filter(Region == "Hoenn")
-sinnoh <- pokemonratings %>% filter(Region == "Sinnoh")
-unova <- pokemonratings %>% filter(Region == "Unova")
-kalos <- pokemonratings %>% filter(Region == "Kalos")
-alola <- pokemonratings %>% filter(Region == "Alola")
-galar <- pokemonratings %>% filter(Region == "Galar")
-hisui <- pokemonratings %>% filter(Region == "Hisui")
-paldea <- pokemonratings %>% filter(Region == "Paldea")
-kitakami <- pokemonratings %>% filter(Region == "Kitakami")
+kanto <- pokemonaverages %>% filter(Region == "Kanto")
+johto <- pokemonaverages %>% filter(Region == "Johto")
+hoenn <- pokemonaverages %>% filter(Region == "Hoenn")
+sinnoh <- pokemonaverages %>% filter(Region == "Sinnoh")
+unova <- pokemonaverages %>% filter(Region == "Unova")
+kalos <- pokemonaverages %>% filter(Region == "Kalos")
+alola <- pokemonaverages %>% filter(Region == "Alola")
+galar <- pokemonaverages %>% filter(Region == "Galar")
+hisui <- pokemonaverages %>% filter(Region == "Hisui")
+paldea <- pokemonaverages %>% filter(Region == "Paldea")
+kitakami <- pokemonaverages %>% filter(Region == "Kitakami")
 
 
 ##### Regions #####
@@ -200,9 +207,74 @@ byType <-  pokemonratings %>%
                              Type == "No 2nd Type" ~ 19)) %>%
   filter(Type != "No 2nd Type")
   
+
+byTypeAverages <-  pokemonaverages %>%   
+  pivot_longer(cols = c(Type1, Type2), names_to = "TypeSlot", values_to = "Type") %>%
+  subset(select = -c(TypeSlot, TypeID1, TypeID2)) %>%
+  mutate(TypeID = case_when(Type == "Normal" ~ 1,
+                            Type == "Fighting" ~ 2,
+                            Type == "Flying" ~ 3,
+                            Type == "Poison" ~4,
+                            Type =="Ground" ~ 5,
+                            Type =="Rock" ~ 6,
+                            Type == "Bug" ~ 7,
+                            Type == "Ghost" ~ 8, 
+                            Type=="Steel" ~ 9,
+                            Type == "Fire" ~ 10,
+                            Type =="Water" ~ 11,
+                            Type == "Grass" ~ 12,
+                            Type == "Electric" ~ 13,
+                            Type == "Psychic" ~ 14,
+                            Type == "Ice" ~ 15,
+                            Type == "Dragon" ~ 16,
+                            Type == "Dark" ~ 17,
+                            Type == "Fairy" ~ 18,
+                            Type == "No 2nd Type" ~ 19)) %>%
+  filter(Type != "No 2nd Type")
+
+
 # levels(byType$Type) <- factor(typeFactor)
 
-typeCats <- append(Categories, "TypeID")
+selections <- c("Complexity",
+                "Realism",
+                "Artificiality",
+                "Fantasy",
+                "Humanoid",
+                "Cuteness",
+                "Coolness",
+                "Beauty",
+                "Popularity",
+                "GimmickFactor",
+                "TypeID",
+                "Generation"
+                )
+
+selections <- c("Complexity",
+                "Realism",
+                "Artificiality",
+                "Fantasy",
+                "Humanoid",
+                "Cuteness",
+                "Coolness",
+                "Beauty",
+                "Popularity",
+                "GimmickFactor",
+                "Generation")
+
+corr_function(byTypeAverages, selections)
+
+corr_function(byTypeAverages %>% filter(Type == "Ghost"), selections)
+corr_function(byTypeAverages %>% filter(Type == "Fire"), selections)
 
 
+# for cor
+# method = c("pearson", "kendall", "spearman"))
+
+correlationTestP <-cor(byTypeAverages %>% subset(select = selections), method = "pearson")
+correlationTestK <-cor(byTypeAverages %>% subset(select = selections), method = "kendall")
+correlationTestS <-cor(byTypeAverages %>% subset(select = selections), method = "spearman")
+
+corrplot(cor(correlationTestP), addCoef.col ='black', type = 'lower')
+corrplot(cor(correlationTestK), addCoef.col ='black', type = 'lower')
+corrplot(cor(correlationTestS), addCoef.col ='black', type = 'lower')
 
