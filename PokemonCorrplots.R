@@ -23,11 +23,11 @@ corr_function <- function(data, variables){
 }
 
 
-ttest <- function(){
-  data <- data %>% subset(select = variables)
-cor(data)
-  
-}
+# ttest <- function(){
+#   data <- data %>% subset(select = variables)
+# cor(data)
+#   
+# }
 
 Categories <- c("Complexity",
                 "Realism",
@@ -278,3 +278,45 @@ corrplot(cor(correlationTestP), addCoef.col ='black', type = 'lower')
 corrplot(cor(correlationTestK), addCoef.col ='black', type = 'lower')
 corrplot(cor(correlationTestS), addCoef.col ='black', type = 'lower')
 
+# Correlation of Type and QUalities
+
+
+
+corrGhost <- cor(byTypeAverages %>% filter(Type == "Ghost")%>% subset(select = selections), method = "kendall")
+corrFire <- cor(byTypeAverages %>% filter(Type == "Fire")%>% subset(select = selections), method = "kendall")
+corrWater <- cor(byTypeAverages %>% filter(Type == "Water")%>% subset(select = selections), method = "kendall")
+corrGrass <- cor(byTypeAverages %>% filter(Type == "Grass")%>% subset(select = selections), method = "kendall")
+corrPoison <- cor(byTypeAverages %>% filter(Type == "Poison")%>% subset(select = selections), method = "kendall")
+corrBug <- cor(byTypeAverages %>% filter(Type == "Bug")%>% subset(select = selections), method = "kendall")
+corrFlying <- cor(byTypeAverages %>% filter(Type == "Flying")%>% subset(select = selections), method = "kendall")
+corrRock <- cor(byTypeAverages %>% filter(Type == "Rock")%>% subset(select = selections), method = "kendall")
+corrGround <- cor(byTypeAverages %>% filter(Type == "Ground")%>% subset(select = selections), method = "kendall")
+corrIce <- cor(byTypeAverages %>% filter(Type == "Ice")%>% subset(select = selections), method = "kendall")
+corrSteel <- cor(byTypeAverages %>% filter(Type == "Steel")%>% subset(select = selections), method = "kendall")
+corrDark <- cor(byTypeAverages %>% filter(Type == "Dark")%>% subset(select = selections), method = "kendall")
+corrPsychic <- cor(byTypeAverages %>% filter(Type == "Psychic")%>% subset(select = selections), method = "kendall")
+corrDragon <- cor(byTypeAverages %>% filter(Type == "Dragon")%>% subset(select = selections), method = "kendall")
+corrFairy <- cor(byTypeAverages %>% filter(Type == "Fairy")%>% subset(select = selections), method = "kendall")
+corrFighting <- cor(byTypeAverages %>% filter(Type == "Fighting")%>% subset(select = selections), method = "kendall")
+corrNormal <- cor(byTypeAverages %>% filter(Type == "Normal")%>% subset(select = selections), method = "kendall")
+corrElectric <- cor(byTypeAverages %>% filter(Type == "Electric")%>% subset(select = selections), method = "kendall")
+
+
+corrplot(corrGhost, addCoef.col ='black', type = 'lower', title = "Ghost")
+corrplot(corrFire, addCoef.col ='black', type = 'lower', title = "Fire")
+corrplot(corrWater, addCoef.col ='black', type = 'lower', title = "Water")
+corrplot(corrGrass, addCoef.col ='black', type = 'lower', title = "Grass")
+corrplot(corrElectric, addCoef.col ='black', type = 'lower', title = "Electric")
+corrplot(corrNormal, addCoef.col ='black', type = 'lower', title = "Normal")
+corrplot(corrBug, addCoef.col ='black', type = 'lower', title = "Bug")
+corrplot(corrPoison, addCoef.col ='black', type = 'lower', title = "Poison")
+corrplot(corrFlying, addCoef.col ='black', type = 'lower', title = "Flying")
+corrplot(corrSteel, addCoef.col ='black', type = 'lower', title = "Steel")
+corrplot(corrDark, addCoef.col ='black', type = 'lower', title = "Dark")
+corrplot(corrFighting, addCoef.col ='black', type = 'lower', title = "Fighting")
+corrplot(corrPsychic, addCoef.col ='black', type = 'lower', title = "Psychic")
+corrplot(corrDragon, addCoef.col ='black', type = 'lower', title = "Dragon")
+corrplot(corrIce, addCoef.col ='black', type = 'lower', title = "Ice")
+corrplot(corrFairy, addCoef.col ='black', type = 'lower', title = "Fairy")
+corrplot(corrRock, addCoef.col ='black', type = 'lower', title = "Rock")
+corrplot(corrGround, addCoef.col ='black', type = 'lower', title = "Ground")
