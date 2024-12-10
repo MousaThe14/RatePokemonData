@@ -43,6 +43,13 @@ Categories <- c("Complexity",
 pokemonratings <- read.csv("all-ratings_enriched.csv") %>% na.omit()
 pokemonaverages <- read.csv("average-ratings_enriched.csv")
 
+ggplot(pokemonaverages)+
+  geom_point(aes(x = Cuteness, y = Popularity)) +
+  geom_smooth(aes(x = Cuteness, y = Popularity, color = "Cuteness", linewidth = 1.5), se=FALSE, show.legend = TRUE) +
+  geom_smooth(aes(x = Coolness, y = Popularity, color = "Coolness", linewidth = 1.5), se=FALSE, show.legend = TRUE) +
+  xlab("Average Rating")
+
+
 
 typeFactor <- factor(levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19),
                      labels = c("Normal", "Fighting", "Flying", "Poison", "Ground", "Rock", "Bug", "Ghost", "Steel",
