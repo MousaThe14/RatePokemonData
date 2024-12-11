@@ -16,7 +16,9 @@ library(splitstackshape)
 
 ##### Useful Reminders #####
 
+# There are currently 1025 Pokemon
 # As of this moment, there are 1251 Pokemon designs that are being ranked.
+## This 226 difference is relevant mostly when comparing to folks like ThomasGameDocs who did not take forms into account
 # So if, at any point, the number of rows is not 1251 when you've grouped by PokemonName
 # Then either you intended for a Pokemon to show up multiple times in the table for what you're doing at the moment
 # Or something has gone wrong and you need to figure out what.
