@@ -32,3 +32,6 @@ uncute31 <- average_ratings %>% slice_min(Cuteness, n = 31)
 UglyUncute2 <- full_join(ugliest31, uncute31)
 
 UglyUncuteCommon <- inner_join(ugliest31, uncute31)
+
+
+ggplot()
