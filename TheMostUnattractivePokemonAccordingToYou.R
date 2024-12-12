@@ -33,5 +33,10 @@ UglyUncute2 <- full_join(ugliest31, uncute31)
 
 UglyUncuteCommon <- inner_join(ugliest31, uncute31)
 
+averages_beauty_cute_ratio <- average_ratings %>% mutate(BeautyOverCute = Beauty/Cuteness)
 
-ggplot()
+
+  
+ggplot(average_ratings, aes(x = Cuteness, y = Beauty)) +
+  geom_point() +
+  geom_smooth(se=FALSE)
