@@ -69,8 +69,9 @@ average_by_region <- average_ratings %>%
                                             "Alola",
                                             "Galar",
                                             "Hisui",
-                                            "Paldea"), ordered = TRUE)) %>%
-  mutate(Order = case_when(Region == "Kanto" ~ 1, Region == "Johto" ~ 2, Region == "Hoenn" ~ 3, Region == "Sinnoh" ~ 4, Region == "Unova" ~ 5, Region == "Kalos" ~ 6, Region == "Alola" ~ 7, Region == "Galar" ~ 8, Region == "Hisui" ~ 9, Region == "Paldea" ~ 10))
+                                            "Paldea",
+                                            "Kitakami"), ordered = TRUE)) %>%
+  mutate(Order = case_when(Region == "Kanto" ~ 1, Region == "Johto" ~ 2, Region == "Hoenn" ~ 3, Region == "Sinnoh" ~ 4, Region == "Unova" ~ 5, Region == "Kalos" ~ 6, Region == "Alola" ~ 7, Region == "Galar" ~ 8, Region == "Hisui" ~ 9, Region == "Paldea" ~ 10, Region == "Kitakami" ~ 11))
 
 
 average_by_region_long <-  average_by_region %>%
@@ -111,8 +112,9 @@ averages_long_region <- averages_long %>%
                                             "Alola",
                                             "Galar",
                                             "Hisui",
-                                            "Paldea"), ordered = TRUE)) %>%
-  mutate(Order = case_when(Region == "Kanto" ~ 1, Region == "Johto" ~ 2, Region == "Hoenn" ~ 3, Region == "Sinnoh" ~ 4, Region == "Unova" ~ 5, Region == "Kalos" ~ 6, Region == "Alola" ~ 7, Region == "Galar" ~ 8, Region == "Hisui" ~ 9, Region == "Paldea" ~ 10))
+                                            "Paldea",
+                                            "Kitakami"), ordered = TRUE)) %>%
+  mutate(Order = case_when(Region == "Kanto" ~ 1, Region == "Johto" ~ 2, Region == "Hoenn" ~ 3, Region == "Sinnoh" ~ 4, Region == "Unova" ~ 5, Region == "Kalos" ~ 6, Region == "Alola" ~ 7, Region == "Galar" ~ 8, Region == "Hisui" ~ 9, Region == "Paldea" ~ 10, Region == "Kitakami" ~ 11))
 
 
 
@@ -220,7 +222,7 @@ mean_mode_region <- mode_region_long %>% full_join(average_by_region_long)
 
 ### Mode Only
 mode_region_long <- mode_region_long %>%
-  mutate(Factor = factor(Region, levels = c("Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar", "Hisui", "Paldea"), ordered = TRUE))
+  mutate(Factor = factor(Region, levels = c("Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar", "Hisui", "Paldea", "Kitakami"), ordered = TRUE))
 mode_gen_plot <- ggplot(mode_gen_long)
 mode_region_plot <- ggplot(mode_region_long)
 
@@ -287,6 +289,9 @@ ggmeanmode_region
 dev.off()
 
 ####
+
+ggplot(average_by_gen, aes(x = Generation, y = Popularity)) +
+  geom_col()
 
 
 ggplot(averages_long_region, aes(x = Category, y = AverageRank)) +
