@@ -1,4 +1,3 @@
-
 library(BBmisc)
 library(tidyverse)
 library(ggpubr)
@@ -17,8 +16,12 @@ library(splitstackshape)
 
 average_ratings <- read.csv("average-ratings_enriched.csv")
 raw_ratings <- read.csv("all-ratings_enriched.csv")
+globalAverage <- read.csv("GlobalAverages.csv")
 
-
+# Global Averages
+# Popularity  3.535
+# Beauty      3.019
+# Cuteness    3.019
 
 
 ugliest30 <- average_ratings %>% slice_min(Beauty, n = 30)
@@ -33,7 +36,16 @@ UglyUncute2 <- full_join(ugliest31, uncute31)
 
 UglyUncuteCommon <- inner_join(ugliest31, uncute31)
 
+LeastPopular50 <- average_ratings %>% slice_min(Popularity, n = 50)
+
+UnpopularUnattractive <- inner_join(UglyUncute2, LeastPopular50)
+
+
 averages_beauty_cute_ratio <- average_ratings %>% mutate(BeautyOverCute = Beauty/Cuteness)
+
+
+
+
 
 
   
