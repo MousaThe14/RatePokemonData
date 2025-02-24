@@ -12,6 +12,8 @@ library(shiny)
 library(viridisLite)
 library(ggpmisc)
 library(ggrepel)
+
+
 getmode <- function(v) {
   uniqv <- unique(v)
   uniqv[which.max(tabulate(match(v, uniqv)))]
@@ -42,6 +44,9 @@ Categories <- c("Complexity",
 
 pokemonratings <- read.csv("all-ratings_enriched.csv") %>% na.omit()
 pokemonaverages <- read.csv("average-ratings_enriched.csv")
+
+corr_function(pokemonaverages, Categories)
+
 
 ggplot(pokemonaverages)+
   geom_point(aes(x = Cuteness, y = Popularity)) +

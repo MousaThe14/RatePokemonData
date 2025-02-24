@@ -13,6 +13,7 @@ library(viridisLite)
 library(ggpmisc)
 library(ggrepel)
 library(splitstackshape)
+library(GGally)
 
 ##### Useful Reminders #####
 

@@ -13,6 +13,7 @@ library(viridisLite)
 library(ggpmisc)
 library(ggrepel)
 library(splitstackshape)
+library(GGally)
 
 average_ratings <- read.csv("average-ratings_enriched.csv")
 raw_ratings <- read.csv("all-ratings_enriched.csv")
@@ -20,6 +21,38 @@ globalAverageTraits <- read.csv("GlobalAverages.csv")
 globalAverageGenerations <- read.csv("GlobalAverage-Gen.csv")
 
 globalAverageTypes <- read.csv( "GlobalAverages-Type.csv")
+
+corr_functionP <- function(data, variables){
+  data <- data %>% subset(select = variables)
+  return(corrplot(cor(data, method = "pearson"), addCoef.col ='black', type = 'lower', number.cex=2, cl.cex = 2, tl.cex = 2))
+}
+corr_functionK <- function(data, variables){
+  data <- data %>% subset(select = variables)
+  return(corrplot(cor(data, method = "kendall"), addCoef.col ='black', type = 'lower'))
+}
+corr_functionS <- function(data, variables){
+  data <- data %>% subset(select = variables)
+  return(corrplot(cor(data, method = "spearman"), addCoef.col ='black', type = 'lower'))
+}
+# 1920 x 1080 video resolution, needed for when I print charts
+
+
+# ttest <- function(){
+#   data <- data %>% subset(select = variables)
+# cor(data)
+#   
+# }
+
+Categories <- c("Complexity",
+                "Realism",
+                "Artificiality",
+                "Fantasy",
+                "Humanoid",
+                "Cuteness",
+                "Coolness",
+                "Beauty",
+                "Popularity")
+
 # Global Averages
 # Popularity  3.533
 # Beauty      3.019
@@ -34,15 +67,22 @@ globalAverageTypes <- read.csv( "GlobalAverages-Type.csv")
 # Least Popular Type - Normal - 3.402
 
 
+categoryCorrelations <- corr_functionP(pokemonaverages, Categories)
+
+png("CorrelationOfCategories.png", width = 1080, height = 1080)
+corr_functionP(pokemonaverages, Categories)
+dev.off()
+
+
 ugliest30 <- average_ratings %>% slice_min(Beauty, n = 30)
 uncute30 <- average_ratings %>% slice_min(Cuteness, n = 30)
 
 UglyUncute <- full_join(ugliest30, uncute30)
  
-# ugliest31 <- average_ratings %>% slice_min(Beauty, n = 31)
-# uncute31 <- average_ratings %>% slice_min(Cuteness, n = 31)
+ ugliest31 <- average_ratings %>% slice_min(Beauty, n = 31)
+ uncute31 <- average_ratings %>% slice_min(Cuteness, n = 31)
 # 
-# UglyUncute2 <- full_join(ugliest31, uncute31)
+ UglyUncute2 <- full_join(ugliest31, uncute31)
 
 UglyUncuteCommon <- inner_join(ugliest30, uncute30)
 
@@ -60,6 +100,18 @@ UncuteUglyUnpopular <- full_join(LeastPopUgly, LeastPopLeastCute)
 averages_beauty_cute_ratio <- average_ratings %>% mutate(BeautyOverCute = Beauty/Cuteness)
 
 
+modelCutePopular <- lm(Popularity ~ Cuteness, data = average_ratings)
+
+modelBeautyPopular <- lm(Popularity ~ Beauty, data = average_ratings)
+
+modelCuteBeauty <- lm(Beauty ~ Cuteness, data = average_ratings)
+
+modelCoolPopular <- lm(Popularity ~ Coolness, data = average_ratings)
+
+modelCuteBeautyCool <- lm(Popularity ~ Coolness + Beauty + Cuteness, average_ratings)
+# The R^2 is 0.826, which means that 82.6% of the variation Popularity can be explained by the 3 variables
+
+
 
 JynxRatings5 <- raw_ratings %>% filter(PokemonName == "Jynx" & Popularity == 5)
 JynxRatings4 <- raw_ratings %>% filter(PokemonName == "Jynx" & Popularity == 4)
@@ -70,4 +122,38 @@ ggplot(average_ratings, aes(x = Cuteness, y = Beauty)) +
   geom_point() +
   # geom_smooth(se=FALSE) +
   stat_poly_line() +
-  stat_poly_eq()
+  stat_poly_eq() +
+  geom_abline(intercept = 1.5712, slope = 0.4798) +
+  stat_regline_equation(label.x.npc = "center")
+# The R^2 is 0.45, which means that 45% of the variation in Beauty can be explained by Cuteness
+
+
+ggplot(average_ratings, aes(x = Cuteness, y = Popularity)) +
+  geom_point() +
+  # geom_smooth(se=FALSE) +
+  stat_poly_line() +
+  stat_poly_eq() +
+  geom_abline(intercept = 2.99157, slope = 0.17933) +
+  stat_regline_equation(label.x.npc = "center")
+# The R^2 is 0.13 which means that only 13% of the variation in Popularity can be explain by Cuteness
+
+ggplot(average_ratings, aes(x = Beauty, y = Popularity)) +
+  geom_point() +
+  # geom_smooth(se=FALSE) +
+  stat_poly_line() +
+  stat_poly_eq() +
+  geom_abline(intercept = 2.14137, slope = 0.46083) +
+  stat_regline_equation(label.x.npc = "center")
+# The R^2 is 0.44 which means that 44% of the variation in Popularity can be explained by Beauty
+
+ggplot(average_ratings, aes(x = Coolness, y = Popularity)) +
+  geom_point() +
+  # geom_smooth(se=FALSE) +
+  stat_poly_line() +
+  stat_poly_eq() +
+  geom_abline(intercept = 2.00586, slope = 0.46024) +
+  stat_regline_equation(label.x.npc = "center")
+# The R^2 is 0.48 which means that 48% of the variation in Popularity can be explained by Coolness
+
+
+ggpairs(average_ratings)
