@@ -19,8 +19,12 @@ average_ratings <- read.csv("average-ratings_enriched.csv")
 raw_ratings <- read.csv("all-ratings_enriched.csv")
 globalAverageTraits <- read.csv("GlobalAverages.csv")
 globalAverageGenerations <- read.csv("GlobalAverage-Gen.csv")
+globalSDs <- average_ratings %>% summarise(PopularitySD = mean(PopularitySD), MeanDesignSD = mean(MeanDesignSD))
 
+globalAverageTraits <- globalAverageTraits %>% cbind(globalSDs)
 globalAverageTypes <- read.csv( "GlobalAverages-Type.csv")
+
+
 
 corr_functionP <- function(data, variables){
   data <- data %>% subset(select = variables)
@@ -34,6 +38,8 @@ corr_functionS <- function(data, variables){
   data <- data %>% subset(select = variables)
   return(corrplot(cor(data, method = "spearman"), addCoef.col ='black', type = 'lower'))
 }
+
+
 # 1920 x 1080 video resolution, needed for when I print charts
 
 
@@ -42,6 +48,15 @@ corr_functionS <- function(data, variables){
 # cor(data)
 #   
 # }
+
+
+averageComplexity
+averageRealism
+averageBeauty
+averageCuteness
+averagePopularity <- average_ratings %>% filter(round(Popularity,2) == round(globalAverageTraits$Popularity,2))
+
+
 
 Categories <- c("Complexity",
                 "Realism",
@@ -155,5 +170,14 @@ ggplot(average_ratings, aes(x = Coolness, y = Popularity)) +
   stat_regline_equation(label.x.npc = "center")
 # The R^2 is 0.48 which means that 48% of the variation in Popularity can be explained by Coolness
 
+
+# ggplot() +
+#   geom_point(average_ratings, mapping = aes(x = Coolness, y = Popularity),  color = "red") +
+#   stat_poly_line(average_ratings, mapping = aes(x = Coolness, y = Popularity), color = "red")  +
+#   geom_point(average_ratings, mapping = aes(x = Cuteness, y = Popularity), color = "pink") +
+#   stat_poly_line(average_ratings, mapping = aes(x = Cuteness, y = Popularity), color = "pink") +
+#   geom_point(average_ratings, mapping = aes(x = Beauty, y = Popularity), color = "blue") +
+#   stat_poly_line(average_ratings, mapping = aes(x = Beauty, y = Popularity), color = "blue") +
+#   xlab("Average Ratings")
 
 ggpairs(average_ratings)

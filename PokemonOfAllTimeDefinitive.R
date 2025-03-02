@@ -43,7 +43,7 @@ sd.p= function(x){
 
 # Create DesignMean Column that creates a mean across the design criteria of every pokemon sans Popularity
 
-meanratings <- read.csv("average-ratings_w_gens.csv") 
+meanratings <- read.csv("average-ratings_enriched.csv") 
 meanratings <- meanratings %>% 
   subset(select = -c(DexNum,
                      X,
@@ -59,7 +59,7 @@ meanratings <- meanratings %>%
 MeanDesignmean <- mean(meanratings$DesignMean)
 
 
-rawratings <-read.csv("all-ratings_w_gens.csv")  %>% 
+rawratings <-read.csv("all-ratings_enriched.csv")  %>% 
   subset(select = -c(DexNum,
                      X,
                      UserID,
