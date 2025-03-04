@@ -58,6 +58,15 @@ getmode <- function(v) {
 # The bigger the SD, the more different ratings
 # Basically the smaller the SD, The closer to average a pokemon is
 
+
+
+  
+beautySD <-raw_ratings %>% group_by(PokemonName) %>% summarise(Beauty = sd.p(Beauty)) 
+beautySDMin <-beautySD %>% filter(Beauty == min(Beauty)) # Most agreement on ebauty
+beautySDMax <- beautySD %>% filter(Beauty == max(Beauty)) # Least agreement on beauty
+beautySDMid <- beautySD %>% filter(Beauty == median(Beauty)) # Average agreement on beauty
+
+
 standardD <- average_ratings %>% 
   summarise(Complexity = sd.p(Complexity),
             Realism = sd.p(Realism),
@@ -70,12 +79,27 @@ standardD <- average_ratings %>%
             Popularity = mean(PopularitySD),
             MeanDesignSD = mean(MeanDesignSD))
 
-# People agree the least on how Humanoid a pokemon is and what they like
-# People agree the most on how realistic a Pokemon is
+
+
+# Rounding 2 decimal places for ease of analysis
 
 globalAverageRounded <- round(globalAverageTraits, 2)
 standardDRounded <- round(standardD, 2)
 average_ratingsRounded <- average_ratings %>% mutate(across(all_of(Categories), round, 2))
+
+minMaxMidBeauty <- average_ratingsRounded %>% filter(Beauty == max(Beauty) | Beauty == min(Beauty) |Beauty == globalAverageRounded$Beauty)
+minMaxMidCuteness <-  average_ratingsRounded %>% filter(Cuteness == max(Cuteness) | Cuteness == min(Cuteness) |Cuteness == globalAverageRounded$Cuteness)
+minMaxMidPopularity <-  average_ratingsRounded %>% filter(Popularity == max(Popularity) | Popularity == min(Popularity) |Popularity == globalAverageRounded$Popularity)
+
+
+
+globalAverageBeauty <- average_ratingsRounded %>% filter(Beauty == globalAverageRounded$Beauty)
+
+
+
+
+
+
 
 
 
@@ -88,7 +112,6 @@ beautyRange <- average_ratingsRounded %>% filter(between(Beauty, globalAverageRo
                                    globalAverageRounded$Beauty + standardDRounded$Beauty))
 popularityRange <- average_ratingsRounded %>% filter(between(Popularity, globalAverageRounded$Popularity - standardDRounded$Popularity,
                                                          globalAverageRounded$Popularity + standardDRounded$Popularity))
-
 
 
 medianBeauty <- beautyRange %>% filter(Beauty == median(Beauty))

@@ -50,10 +50,10 @@ corr_functionS <- function(data, variables){
 # }
 
 
-averageComplexity
-averageRealism
-averageBeauty
-averageCuteness
+# averageComplexity
+# averageRealism
+# averageBeauty
+# averageCuteness
 averagePopularity <- average_ratings %>% filter(round(Popularity,2) == round(globalAverageTraits$Popularity,2))
 
 
@@ -120,6 +120,7 @@ modelCutePopular <- lm(Popularity ~ Cuteness, data = average_ratings)
 modelBeautyPopular <- lm(Popularity ~ Beauty, data = average_ratings)
 
 modelCuteBeauty <- lm(Beauty ~ Cuteness, data = average_ratings)
+modelBeautyCute <- lm(Cuteness ~ Beauty, data = average_ratings)
 
 modelCoolPopular <- lm(Popularity ~ Coolness, data = average_ratings)
 
@@ -141,6 +142,16 @@ ggplot(average_ratings, aes(x = Cuteness, y = Beauty)) +
   geom_abline(intercept = 1.5712, slope = 0.4798) +
   stat_regline_equation(label.x.npc = "center")
 # The R^2 is 0.45, which means that 45% of the variation in Beauty can be explained by Cuteness
+
+ggplot(average_ratings, aes(x = Beauty, y = Cuteness)) +
+  geom_point() +
+  # geom_smooth(se=FALSE) +
+  stat_poly_line() +
+  stat_poly_eq() +
+  geom_abline(intercept = 0.19623, slope = 0.93462) +
+  stat_regline_equation(label.x.npc = "center")
+
+
 
 
 ggplot(average_ratings, aes(x = Cuteness, y = Popularity)) +
