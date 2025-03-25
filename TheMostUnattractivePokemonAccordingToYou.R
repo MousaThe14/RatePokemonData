@@ -88,6 +88,15 @@ png("CorrelationOfCategories.png", width = 1080, height = 1080)
 corr_functionP(pokemonaverages, Categories)
 dev.off()
 
+# Correlation coefficients
+
+## Beauty - Cuteness
+### 0.66967295, 66.97%
+## Beauty - Popularity
+### 0.66645575
+## Cuteness - Popularity
+### 0.36194970
+
 
 ugliest30 <- average_ratings %>% slice_min(Beauty, n = 30)
 uncute30 <- average_ratings %>% slice_min(Cuteness, n = 30)
@@ -126,6 +135,7 @@ modelCoolPopular <- lm(Popularity ~ Coolness, data = average_ratings)
 
 modelCuteBeautyCool <- lm(Popularity ~ Coolness + Beauty + Cuteness, average_ratings)
 # The R^2 is 0.826, which means that 82.6% of the variation Popularity can be explained by the 3 variables
+average_ratings <- average_ratings %>% mutate(PrettyCuteCool = Cuteness + Beauty + Coolness)
 
 
 
@@ -181,6 +191,17 @@ ggplot(average_ratings, aes(x = Coolness, y = Popularity)) +
   stat_regline_equation(label.x.npc = "center")
 # The R^2 is 0.48 which means that 48% of the variation in Popularity can be explained by Coolness
 
+ggplot(average_ratings, aes(x = Coolness, y = Popularity)) +
+  geom_point() +
+  # geom_smooth(se=FALSE) +
+  stat_poly_line() +
+  stat_poly_eq() +
+  geom_abline(intercept = 2.00586, slope = 0.46024) +
+  stat_regline_equation(label.x.npc = "center")
+# The R^2 is 0.48 which means that 48% of the variation in Popularity can be explained by Coolness
+
+
+
 
 # ggplot() +
 #   geom_point(average_ratings, mapping = aes(x = Coolness, y = Popularity),  color = "red") +
@@ -190,5 +211,21 @@ ggplot(average_ratings, aes(x = Coolness, y = Popularity)) +
 #   geom_point(average_ratings, mapping = aes(x = Beauty, y = Popularity), color = "blue") +
 #   stat_poly_line(average_ratings, mapping = aes(x = Beauty, y = Popularity), color = "blue") +
 #   xlab("Average Ratings")
+
+
+ggplotRegression <- function (fit) {
+  
+  require(ggplot2)
+  
+  ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
+    geom_point() +
+    stat_smooth(method = "lm", col = "red") +
+    labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+                       "Intercept =",signif(fit$coef[[1]],5 ),
+                       " Slope =",signif(fit$coef[[2]], 5),
+                       " P =",signif(summary(fit)$coef[2,4], 5)))
+}
+
+ggplotRegression(lm(Popularity ~ Coolness, average_ratings))
 
 ggpairs(average_ratings)
