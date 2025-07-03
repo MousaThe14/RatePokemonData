@@ -112,6 +112,9 @@ UglyUncuteCommon <- inner_join(ugliest30, uncute30)
 
 LeastPopular50 <- average_ratings %>% slice_min(Popularity, n = 50)
 
+LeastPopular50ByGen <- LeastPopular50 %>% group_by(Generation)
+
+
 UnpopularUnattractive <- inner_join(UglyUncute, LeastPopular50)
 
 LeastPopLeastCute <- inner_join(LeastPopular50, uncute30)
