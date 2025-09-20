@@ -203,6 +203,12 @@ unatractiveRatings_long <-  unatractiveRatings %>%
 #nrow(JynxRatings5)
 
 
+# RellorRatings5 <- raw_ratings %>% filter(PokemonName == "Rellor" & Beauty == 5)
+# RellorRatings4 <- raw_ratings %>% filter(PokemonName == "Rellor" & Beauty == 4)
+# nrow(RellorRatings4)
+# nrow(RellorRatings5)
+
+
 plot_theme <- theme(axis.line = element_line(colour = "#21386E"),
                     panel.grid.major = element_line(color = "#FFCB05"),
                     panel.grid.minor = element_blank(),
