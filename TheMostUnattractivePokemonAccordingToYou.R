@@ -15,14 +15,30 @@ library(ggrepel)
 library(splitstackshape)
 library(GGally)
 
-average_ratings <- read.csv("average-ratings_enriched.csv")
-raw_ratings <- read.csv("all-ratings_enriched.csv")
-globalAverageTraits <- read.csv("GlobalAverages.csv")
+
+### Get Mode ###
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+### Get Population Mean ###
+sd.p =  function(x){
+  sd(x) * sqrt((length(x)-1)/length(x))
+} 
+
+
+
+
+
+average_ratings <- read.csv("average-ratings_enriched_151Ratings.csv")
+raw_ratings <- read.csv("all-ratings_enriched_151Ratings.csv")
+globalAverageTraits <- read.csv("GlobalAverages_151Ratings.csv")
 globalAverageGenerations <- read.csv("GlobalAverage-Gen.csv")
 globalSDs <- average_ratings %>% summarise(PopularitySD = mean(PopularitySD), MeanDesignSD = mean(MeanDesignSD))
 
 globalAverageTraits <- globalAverageTraits %>% cbind(globalSDs)
-globalAverageTypes <- read.csv( "GlobalAverages-Type.csv")
+globalAverageTypes <- read.csv( "GlobalAverages-Type_151Ratings.csv")
 
 
 
@@ -110,7 +126,7 @@ UglyUncute <- full_join(ugliest30, uncute30)
 
 UglyUncuteCommon <- inner_join(ugliest30, uncute30)
 
-LeastPopular50 <- average_ratings %>% slice_min(Popularity, n = 50)
+LeastPopular50 <- average_ratings %>% slice_min(Popularity, n = 150)
 
 LeastPopular50ByGen <- LeastPopular50 %>% group_by(Generation)
 
@@ -122,30 +138,93 @@ LeastPopUgly <- inner_join(LeastPopular50, ugliest30)
 
 UncuteUglyUnpopular <- full_join(LeastPopUgly, LeastPopLeastCute)
 
+UncuteUglyUnpopular <- UncuteUglyUnpopular %>% slice_min(Popularity, n = 20)
+
+# 
+# averages_beauty_cute_ratio <- average_ratings %>% mutate(BeautyOverCute = Beauty/Cuteness)
+# 
+# 
+# modelCutePopular <- lm(Popularity ~ Cuteness, data = average_ratings)
+# 
+# modelBeautyPopular <- lm(Popularity ~ Beauty, data = average_ratings)
+# 
+# modelCuteBeauty <- lm(Beauty ~ Cuteness, data = average_ratings)
+# modelBeautyCute <- lm(Cuteness ~ Beauty, data = average_ratings)
+# 
+# modelCoolPopular <- lm(Popularity ~ Coolness, data = average_ratings)
+# 
+# modelCuteBeautyCool <- lm(Popularity ~ Coolness + Beauty + Cuteness, average_ratings)
+# # The R^2 is 0.826, which means that 82.6% of the variation Popularity can be explained by the 3 variables
+# average_ratings <- average_ratings %>% mutate(PrettyCuteCool = Cuteness + Beauty + Coolness)
 
 
-averages_beauty_cute_ratio <- average_ratings %>% mutate(BeautyOverCute = Beauty/Cuteness)
+##### The Modal Ratings for each of the "least attractive" pokemon
 
 
-modelCutePopular <- lm(Popularity ~ Cuteness, data = average_ratings)
+names(UnpopularUnattractive) <- c("DexNum",
+                          "PokemonName",
+                          "PokeApiName",
+                          "AvgComplexity",
+                          "AvgRealism",
+                          "AvgArtificiality",
+                          "AvgFantasy",
+                          "AvgHumanoid",
+                          "AvgCuteness",
+                          "AvgCoolness",
+                          "AvgBeauty",
+                          "AvgPopularity")
 
-modelBeautyPopular <- lm(Popularity ~ Beauty, data = average_ratings)
-
-modelCuteBeauty <- lm(Beauty ~ Cuteness, data = average_ratings)
-modelBeautyCute <- lm(Cuteness ~ Beauty, data = average_ratings)
-
-modelCoolPopular <- lm(Popularity ~ Coolness, data = average_ratings)
-
-modelCuteBeautyCool <- lm(Popularity ~ Coolness + Beauty + Cuteness, average_ratings)
-# The R^2 is 0.826, which means that 82.6% of the variation Popularity can be explained by the 3 variables
-average_ratings <- average_ratings %>% mutate(PrettyCuteCool = Cuteness + Beauty + Coolness)
 
 
+#unattractiveRatings<- inner_join(UnpopularUnattractive, raw_ratings)
+unattractiveNames <- UnpopularUnattractive %>% subset(select = PokemonName)
 
-JynxRatings5 <- raw_ratings %>% filter(PokemonName == "Jynx" & Popularity == 5)
-JynxRatings4 <- raw_ratings %>% filter(PokemonName == "Jynx" & Popularity == 4)
-nrow(JynxRatings4)
-nrow(JynxRatings5)
+unatractiveRatings <- inner_join(unattractiveNames,raw_ratings) 
+
+unatractiveRatings_long <-  unatractiveRatings %>%
+  pivot_longer(cols = c(Complexity,
+                        Realism,
+                        Artificiality,
+                        Fantasy,
+                        Humanoid,
+                        Cuteness,
+                        Coolness,
+                        Beauty,
+                        Popularity), names_to = "Category", values_to = "Ratings")
+
+
+
+
+
+
+#JynxRatings5 <- raw_ratings %>% filter(PokemonName == "Jynx" & Popularity == 5)
+#JynxRatings4 <- raw_ratings %>% filter(PokemonName == "Jynx" & Popularity == 4)
+#nrow(JynxRatings4)
+#nrow(JynxRatings5)
+
+
+plot_theme <- theme(axis.line = element_line(colour = "#21386E"),
+                    panel.grid.major = element_line(color = "#FFCB05"),
+                    panel.grid.minor = element_blank(),
+                    panel.border = element_blank(),
+                    panel.background = element_blank(),
+                    element_text(family = "Pokemon Solid"))
+
+unatractiveRatings_long <- unatractiveRatings_long  %>% filter(Category == "Beauty" | Category ==  "Cuteness" | Category ==  "Popularity")
+
+ggplot(unatractiveRatings_long %>% filter(PokemonName == "Rellor"), aes(x = Ratings)) +
+  geom_bar() +
+  facet_wrap(~toupper(Category)) +
+  plot_theme
+
+
+
+
+#####
+
+
+
+
   
 ggplot(average_ratings, aes(x = Cuteness, y = Beauty)) +
   geom_point() +
