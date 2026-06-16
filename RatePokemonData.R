@@ -130,7 +130,8 @@ pkmn_metadata$TypeID2 <- replace_na(pkmn_split$TypeID2, 19)
 ### All Ratings ###
 
 # Importing the Rate Pokemon data The url version downloads it directly from the website.
-pokemon_rates <- read.csv(url("https://ratepkmn.com/dlAll")) %>%
+linkAll <- url("https://ratepkmn.com/dlAll")
+pokemon_rates <- read.csv(linkAll) %>%
   na.omit() # Removes rows with missing values (That one Debutante Furfrou) 
  
 
@@ -165,7 +166,9 @@ pokemon_rates <- pokemon_rates %>%
 ### Averages ###
 
 # Importing the averages list
-pokemon_averages <- read.csv(url("https://ratepkmn.com/dlAvg"))
+linkAvg <- url("https://ratepkmn.com/dlAvg")
+
+pokemon_averages <- read.csv(linkAvg)
 
 # Importing the Rate Pokemon Averages from a the locally downloaded file
 # pokemon_averages <- read.csv("average-ratings.csv")
